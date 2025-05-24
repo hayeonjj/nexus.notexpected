@@ -2,35 +2,239 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>내 웹 게임 컬렉션</title>
-    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial=" initial-scale="1.0">
+    <title>femmeme</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap" rel="stylesheet">
+    <style>
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+
+        body {
+            margin: 0;
+            overflow: hidden; /* 스크롤바 제거 */
+            font-family: "Orbit", sans-serif;
+        font-weight: 400;
+        font-style: normal;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #000; /* 배경색 어둡게 */
+            color: #333; /* 기본 텍스트 색상 (빈 픽셀처럼 보이기 위해) */
+        }
+
+        #full-screen-text {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            font-size: 36px; /* 화면을 꽉 채우는 폰트 크기 (조절 가능) */
+            text-align: justify;
+            line-height: 1; /* 줄 간격 조절 */
+            word-break: break-all; /* 단어가 줄 바꿈될 때 단어 단위로 끊기지 않게 */
+            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
+            letter-spacing: -2px; /* 글자 간 간격 조절 */
+            user-select: none; /* 텍스트 드래그 방지 */
+            z-index: 1; /* 도형보다 아래에 위치 */
+        }
+
+        .text-char {
+            display: inline-block; /* 각 문자를 인라인 블록으로 */
+            transition: color 0.3s ease, font-weight 0.3s ease; /* 부드러운 전환 효과 */
+        }
+
+        .highlighted {
+            color: fuchsia !important; /* 호버 시 빨간색으로 변경 */
+            font-weight: bold !important; /* 호버 시 굵게 변경 */
+        }
+
+        /* 공통 트리거 스타일 */
+        .trigger-shape {
+            position: fixed; /* 뷰포트에 고정 */
+            width: 70px; /* 원형 도형과 동일한 크기 */
+            height: 70px; /* 원형 도형과 동일한 크기 */
+            cursor: pointer;
+            z-index: 10; /* 가장 위에 위치 */
+            transition: background-color 0.3s ease, border-radius 0.3s ease;
+        }
+
+        /* 개별 트리거 스타일 */
+        #circle-trigger {
+            top: 25px;
+            left: 25px;
+            background-color: red;
+            border-radius: 50%; /* 원형 */
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #circle-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger {
+            height: 64px;
+            width: 64px;
+            top: 120px;
+            left: 28px; /* 원형 도형과 같은 왼쪽 정렬 */
+            background-color:rgb(255, 255, 35);
+            border-radius: 0; /* 사각형 */
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger {
+            height: 68px;
+            width: 68px;
+            top: 214px;
+            left: 26px; /* 원형 도형과 같은 왼쪽 정렬 */
+            background-color:rgb(0, 255, 220);
+            border-radius: 20px; /* 라운딩 코너 (원하는 값으로 조절) */
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        /* 아스키 아트 컨테이너들의 공통 스타일 */
+        .ascii-container {
+            position: absolute;
+            top: 46%; /* SNAKE와 동일한 중앙 위치 */
+            left: 50%;
+            transform: translate(-50%, -50%);
+            white-space: pre; /* 공백과 줄 바꿈 유지 */
+            font-size: 36px; /* 아스키 아트 글자 크기 (조절 가능) */
+            line-height: 1;
+            opacity: 0; /* 초기에는 숨김 */
+            transition: opacity 0.5s ease; /* 부드러운 나타남 효과 */
+            z-index: 5; /* 텍스트 위에 위치 */
+            pointer-events: none; /* 아스키 아트 위로 마우스 이벤트를 통과시킴 */
+            color: fuchsia; /* 아스키 아트 텍스트 색상 */
+            font-weight: bold; /* 아스키 아트 텍스트 굵기 */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>🎮 내 웹 게임 컬렉션 🎮</h1>
-        <p>지금 바로 플레이해 보세요!</p>
-    </header>
+    <div id="circle-trigger" class="trigger-shape"></div>
+    <div id="square-trigger" class="trigger-shape"></div>
+    <div id="rounded-square-trigger" class="trigger-shape"></div>
 
-    <main class="game-container">
-        <a href="game1/index.html" class="game-card">
-            <h2>재미있는 게임 1</h2>
-            <p>신나는 모험이 기다리는 게임입니다.</p>
-        </a>
+    <div id="full-screen-text"></div>
 
-        <a href="game2/index.html" class="game-card">
-            <h2>환상의 게임 2</h2>
-            <p>퍼즐을 풀며 두뇌를 자극해 보세요!</p>
-        </a>
+    <div id="snake-ascii-container" class="ascii-container"></div>
+    <div id="tetris-ascii-container" class="ascii-container"></div>
+    <div id="2048-ascii-container" class="ascii-container"></div>
 
-        <a href="game3/index.html" class="game-card">
-            <h2>스릴 넘치는 게임 3</h2>
-            <p>빠른 반사신경이 필요한 액션 게임입니다.</p>
-        </a>
-    </main>
+    <script>
+        const fullScreenTextDiv = document.getElementById('full-screen-text');
+        const textChars = document.querySelectorAll('.text-char');
 
-    <footer>
-        <p>&copy; 2025 [당신의 이름/닉네임]의 게임 컬렉션</p>
-    </footer>
+        // 트리거 요소들
+        const circleTrigger = document.getElementById('circle-trigger');
+        const squareTrigger = document.getElementById('square-trigger');
+        const roundedSquareTrigger = document.getElementById('rounded-square-trigger');
+
+        // 아스키 아트 컨테이너들
+        const snakeAsciiContainer = document.getElementById('snake-ascii-container');
+        const tetrisAsciiContainer = document.getElementById('tetris-ascii-container');
+        const twoZeroFourEightAsciiContainer = document.getElementById('2048-ascii-container');
+
+        // 화면을 채울 반복 텍스트
+        const repeatText = "퐁퐁수진이혜지설거지이기야노칠가이싹싹김치집게손피싸개앙기모띠식폭행쿵쾅쿵쾅카렌김여사계집신조";
+        const textLength = repeatText.length;
+        const totalChars = 2000; // 대략적인 문자 수 (화면 크기에 따라 조절)
+
+        // 텍스트를 span 태그로 감싸서 동적으로 삽입
+        let generatedText = '';
+        for (let i = 0; i < totalChars; i++) {
+            generatedText += `<span class="text-char">${repeatText[i % textLength]}</span>`;
+        }
+        fullScreenTextDiv.innerHTML = generatedText;
+
+        // --- 아스키 아트 텍스트 정의 ---
+        const snakeAsciiText = `
+ SSS  N   N    A    K  K EEEEE
+S     NN  N   A A   K K  E
+ SSS  N N N  AAAAA  KK   EEEE
+    S N  NN  A   A  K K  E
+SSSS  N   N A     A K  K EEEEE
+`;
+        const tetrisAsciiText = `
+TTTTT EEEEE TTTTT RRRR  IIIII  SSS
+  T   E       T   R   R   I   S
+  T   EEEE    T   RRRR    I    SSS
+  T   E       T   R R     I       S
+  T   EEEEE   T   R   R IIIII SSSS
+`;
+        const twoZeroFourEightAsciiText = `
+ 222  00000  4   4   888
+2   2 0   0  4   4  8   8
+   2  0   0  44444   888
+ 2    0   0      4  8   8
+22222 00000      4   888
+`;
+        // 각 아스키 아트 컨테이너에 텍스트 할당
+        snakeAsciiContainer.textContent = snakeAsciiText;
+        tetrisAsciiContainer.textContent = tetrisAsciiText;
+        twoZeroFourEightAsciiContainer.textContent = twoZeroFourEightAsciiText;
+
+        // --- 효과 함수 정의 ---
+
+        // 모든 아스키 아트 숨기기 함수
+        function hideAllAsciiArts() {
+            snakeAsciiContainer.style.opacity = '0';
+            tetrisAsciiContainer.style.opacity = '0';
+            twoZeroFourEightAsciiContainer.style.opacity = '0';
+            textChars.forEach(char => char.classList.remove('highlighted')); // 하이라이트 제거
+        }
+
+        // 공통 아스키 아트 표시 함수 (어떤 컨테이너를 보여줄지 인자로 받음)
+        function showAsciiArt(container) {
+            hideAllAsciiArts(); // 다른 아스키 아트 숨기기
+            container.style.opacity = '1';
+
+            // 배경 텍스트 하이라이트 (이전 SNAKE 로직과 동일하게)
+            const centerHighlightRange = 500;
+            const startIndex = Math.floor((textChars.length - centerHighlightRange) / 2);
+            const endIndex = startIndex + centerHighlightRange;
+
+            for (let i = startIndex; i < endIndex; i++) {
+                if (textChars[i]) {
+                    textChars[i].classList.add('highlighted');
+                }
+            }
+        }
+
+        // --- 이벤트 리스너 추가 ---
+
+        circleTrigger.addEventListener('mouseenter', () => showAsciiArt(snakeAsciiContainer));
+        circleTrigger.addEventListener('mouseleave', hideAllAsciiArts);
+
+        squareTrigger.addEventListener('mouseenter', () => showAsciiArt(tetrisAsciiContainer));
+        squareTrigger.addEventListener('mouseleave', hideAllAsciiArts);
+
+        roundedSquareTrigger.addEventListener('mouseenter', () => showAsciiArt(twoZeroFourEightAsciiContainer));
+        roundedSquareTrigger.addEventListener('mouseleave', hideAllAsciiArts);
+
+    </script>
 </body>
 </html>
