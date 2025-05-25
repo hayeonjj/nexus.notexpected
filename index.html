@@ -134,9 +134,9 @@
     </style>
 </head>
 <body>
-    <div id="circle-trigger" class="trigger-shape" onclick="window.open('/snake/index.html');"></div>
-    <div id="square-trigger" class="trigger-shape" onclick="window.open('/tetris/index.html');"></div>
-    <div id="rounded-square-trigger" class="trigger-shape" onclick="window.open('/2048/index.html');"></div>
+    <div id="circle-trigger" class="trigger-shape" onclick="goToAnotherPage1()"></div>
+    <div id="square-trigger" class="trigger-shape" onclick="goToAnotherPage2()"></div>
+    <div id="rounded-square-trigger" class="trigger-shape" onclick="goToAnotherPage3()"></div>
 
     <div id="full-screen-text"></div>
 
@@ -235,6 +235,26 @@ XXXXX XXXXX     X  XXX
         roundedSquareTrigger.addEventListener('mouseenter', () => showAsciiArt(twoZeroFourEightAsciiContainer));
         roundedSquareTrigger.addEventListener('mouseleave', hideAllAsciiArts);
 
+        // --- div에 게임 링크 연결 ---
+        function goToAnotherPage1() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
+            window.location.href = './snake/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
+        }
+        function goToAnotherPage2() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
+            window.location.href = './tetris/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
+        }
+
+        function goToAnotherPage3() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
+            window.location.href = './2048/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
+        }        
     </script>
 </body>
 </html>
