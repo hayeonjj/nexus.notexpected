@@ -1,1 +1,918 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>한글 음절 2048 (단어 수집기)</title>
+    <style>
+        /* Google Fonts 임포트 */
+        @import url('https://fonts.googleapis.com/css2?family=Gothic+A1&family=Noto+Sans+KR:wght@100..900&display=swap');
 
+        :root {
+            --tile-size: 100px;
+            --gap-size: 10px;
+            --animation-duration: 0.1s; /* CSS transition duration */
+        }
+
+        body {
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            color: #FF0000; /* 한글 강조를 위한 빨간색 */
+            height: 100%; /* html과 body가 뷰포트 전체 높이를 차지하도록 */
+            margin: 0;   /* 기본 마진 제거 */
+            padding: 0;  /* 기본 패딩 제거 */
+            overflow: hidden; /* 스크롤바 숨김 */
+
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: white; /* 자모 지렁이 스타일: 배경색 흰색 */
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1 {
+            color: #FF0000;
+            margin-bottom: 20px;
+            position: absolute;
+            top: 5%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 20px;
+            text-align: center;
+            pointer-events: none;
+        }
+
+        /* game-info: 이제 리셋 버튼만 가짐 */
+        .game-info {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px; /* 게임 보드와의 간격 유지 */
+            width: calc(var(--tile-size) * 4 + var(--gap-size) * 3 + var(--gap-size) * 2); /* 보드와 너비 맞춤 */
+        }
+
+        #reset-button {
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            background-color: #FF0000;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            outline: none;
+            -webkit-transition: .3s ease-in-out;
+            cursor: pointer;
+            transition: .3s ease-in-out;
+        }
+
+        #reset-button:hover {
+            filter: blur(3px); /* 자모 지렁이 버튼과 동일한 호버 효과 */
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        /* review-words-button: 자모 지렁이의 #next-button 스타일 적용 */
+        #review-words-button {
+            position: absolute; /* body 기준 절대 위치 */
+            right: 20px;
+            bottom: 20px;
+            padding: 15px 30px;
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 20px;
+            background-color: #FF0000; /* 자모 지렁이 버튼과 동일한 색상 */
+            color: white; /* 텍스트 흰색 */
+            border: none;
+            border-radius: 4px;
+            -webkit-transition: .3s ease-in-out;
+            cursor: pointer;
+            transition: .3s ease-in-out;
+            z-index: 50; /* 다른 요소 위에 오도록 */
+        }
+
+        #review-words-button:hover {
+            filter: blur(3px); /* 자모 지렁이 버튼과 동일한 호버 효과 */
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #game-board {
+            display: grid;
+            grid-template-columns: repeat(4, var(--tile-size));
+            grid-template-rows: repeat(4, var(--tile-size));
+            gap: var(--gap-size);
+            background-color: white;
+            padding: var(--gap-size); /* 중요: 패딩 설정 */
+            border-radius: 6px;
+            border: 3px solid rgba(255, 0, 0) ;
+            position: relative; /* Tiles will be absolute positioned inside this */
+            width: calc(var(--tile-size) * 4 + var(--gap-size) * 3); /* 4 tiles + 3 gaps */
+            height: calc(var(--tile-size) * 4 + var(--gap-size) * 3);
+        }
+
+        /* 빈 칸의 배경이 될 그리드 셀 */
+        .grid-cell {
+            width: var(--tile-size);
+            height: var(--tile-size);
+            background-color: rgb(255, 255, 255); /* 빈 셀 배경 */
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+
+        .tile {
+            position: absolute; /* 절대 위치 */
+            width: var(--tile-size);
+            height: var(--tile-size);
+            background-color: #80ff00c0; /* <-- 이 색상은 이제 '한 음절 타일'의 기본 배경색이 됩니다. */
+            display: flex;
+            flex-direction: column; /* 여러 줄 텍스트를 세로로 정렬 */
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            font-weight: 700;
+            color: #FF0000;
+            border-radius: 3px;
+            user-select: none;
+            box-sizing: border-box;
+            padding: 5px;
+            word-break: break-all;
+            text-align: center;
+            line-height: 1.2; /* 줄 간격 조절 */
+            
+            /* 모든 타일의 움직임 및 외형 변화에 대한 전환 효과 */
+            transition: transform var(--animation-duration) ease-out, 
+                        opacity var(--animation-duration) ease-out, 
+                        background-color var(--animation-duration) ease-out, 
+                        color var(--animation-duration) ease-out;
+            z-index: 2; /* 타일이 grid-cell 위에 오도록 */
+        }
+
+        /* --- 두 음절 이상인 타일의 배경색 설정 --- */
+        /* data-length 속성값이 1이 아닌 모든 타일(즉, 두 음절 이상)에 적용됩니다. */
+        .tile[data-length]:not([data-length="1"]) {
+            background-color: #ff99fa; /* <--- 두 음절 이상 단어 타일의 일반적인 배경색입니다. */
+        }
+
+        /* 글자 길이에 따른 폰트 크기 조절 */
+        .tile[data-length="3"] { font-size: 1.8em; }
+        .tile[data-length="4"] { font-size: 1.6em; }
+        .tile[data-length="5"] { font-size: 1.6em; }
+        .tile[data-length="6"] { font-size: 1.6em; }
+        .tile[data-length="7"] { font-size: 1.4em; }
+        .tile[data-length="8"] { font-size: 1.4em; }
+        .tile[data-length="10"], .tile[data-length="11"], .tile[data-length="12"] { font-size: 1.1em; } 
+
+        /* 병합된 타일 애니메이션 (깜빡임 + z-index로 겹쳐지는 효과) */
+        .tile.merged-tile {
+            animation: merged-flash var(--animation-duration) ease-out;
+            z-index: 3; /* 병합 시 다른 타일 위에 오도록 */
+        }
+        /*@keyframes merged-flash {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); background-color: #ffda6a; }
+            100% { transform: scale(1); }
+        }*/
+
+        /* 사라지는 타일 (병합되어 사라지는 타일) */
+        .tile.removed-tile {
+            opacity: 0;
+            transition: opacity var(--animation-duration) ease-out;
+            z-index: 1; /* 뒤로 보내기 */
+        }
+
+        /* 오버레이 공통 스타일 */
+        .overlay {
+            position: fixed; /* 전체 화면 덮도록 */
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: white; /* 불투명한 흰색 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; /* 최상단에 위치 */
+            font-size: 1.5em;
+            font-weight: 700;
+            color: #FF0000; /* 자모 지렁이의 기본 텍스트 색상과 동일 */
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: auto; /*내용이 많으면 스크롤 가능하게 */
+        }
+
+        .overlay h2 {
+            color: #FF0000;
+            margin-bottom: 20px;
+        }
+
+        #word-list-container {
+            width: 80%;
+            max-width: 500px;
+            max-height: 70vh; /* 최대 높이 설정 */
+            overflow-y: auto; /* 스크롤 가능하게 */
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            /*box-shadow: 0 4px 10px rgba(0,0,0,0.1);*/
+        }
+
+        .word-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px dashed #ccc;
+        }
+
+        .word-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .word-item strong {
+            font-size: 1.5em;
+            color: #FF0000;
+            margin-bottom: 5px;
+        }
+
+        .word-item input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.9em;
+            box-sizing: border-box;
+        }
+
+        /* overlay 내부 버튼 (닫기 버튼) 스타일도 일관성 있게 맞춤 */
+        .overlay button {
+            margin-top: 20px;
+            padding: 12px 25px;
+            background-color: #FF0000; /* 자모 지렁이 버튼과 동일한 색상 */
+            color: white; /* 텍스트 흰색 */
+            border: none;
+            border-radius: 4px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.2s, filter 0.3s; /* 호버 효과 추가를 위해 transition도 추가 */
+        }
+
+        .overlay button:hover {
+            background-color: #CC0000; /* 자모 지렁이 버튼과 일관성을 위해 약간 어둡게 */
+            filter: blur(3px); /* 자모 지렁이 버튼과 동일한 호버 효과 */
+        }
+    </style>
+</head>
+<body>
+    <h1>*방향키를 눌러 시작하세요*</h1>
+
+    <div class="game-info">
+        <button id="reset-button">다시 시작</button>
+    </div>
+
+    <div id="game-board">
+        </div>
+
+    <button id="review-words-button" style="display: none;">단어 확인</button>
+
+    <div id="word-review-overlay" class="overlay" style="display: none;">
+        <h2>수집된 단어</h2>
+        <div id="word-list-container">
+            </div>
+        <button id="close-review-button">닫기</button>
+    </div>
+
+    <script>
+        // 게임 상수 설정
+        const SINGLE_SYLLABLES = [
+            '이', '기', '야', '노', '칠', '가', '이', '수', '진', '이', '싹', '싹', '김', '치', '지', '브', '리', '에', '이', '아', '이', '집', '게', '손', '혜', '지', '피', '싸', '개', '퐁', '퐁', '남', '설', '거', '지', '당', '하', '다', '앙', '띠', '식', '폭', '행', '쿵', '쾅', '쿵', '쾅', '딸', '배', '참', '교', '육', '사', '이', '다', '카', '렌', '우', '먼', '나', '는', '숭', '배', '해', '야', '해', '김', '여', '사'
+        ];
+        const MAX_MERGE_LENGTH = 8;
+        const boardSize = 4; // 4x4 보드
+        const ANIMATION_DURATION = 100; // ms (CSS transition-duration과 일치해야 함)
+        const TILE_SIZE = 100; // px
+        const GAP_SIZE = 10;   // px
+        const MIN_SYLLABLES_FOR_REVIEW = 3; // 단어 확인 대상 최소 음절 수
+        const MIN_MERGED_TILES_FOR_BUTTON = 3; // '단어 확인' 버튼 활성화 최소 합쳐진 타일 수
+
+        // 전역 게임 상태 변수
+        let board = [];              // 게임 보드 데이터 (값과 ID를 포함하는 객체 또는 null)
+        let tileElementsMap = new Map(); // 타일 ID와 해당 DOM 요소(HTMLElement)를 매핑
+        let nextTileId = 0;          // 새로 생성될 타일의 고유 ID
+
+        let twoPlusSyllableTileCount = 0; // 보드에 있는 3음절 이상 합쳐진 타일의 개수
+        // 현재 단어 확인 세션에서 수집된 단어 목록
+        let collectedWordsForReview = []; // { id: number, word: string, meaning: string | null }
+        let nextReviewWordId = 0; // collectedWordsForReview의 각 단어에 대한 고유 ID
+
+        let isAnimating = false; // 애니메이션 중에는 사용자 입력 방지
+
+        // DOM 요소 캐싱
+        const gameBoardElement = document.getElementById('game-board');
+        const resetButton = document.getElementById('reset-button');
+        const reviewWordsButton = document.getElementById('review-words-button');
+        const wordReviewOverlay = document.getElementById('word-review-overlay');
+        const wordListContainer = document.getElementById('word-list-container');
+        const closeReviewButton = document.getElementById('close-review-button');
+
+        // --- 유틸리티 함수 ---
+
+        /**
+         * 그리드 좌표(row, col)를 픽셀 좌표(x, y)로 변환합니다.
+         * 보드의 패딩(GAP_SIZE)을 고려하여 정확한 위치를 반환합니다.
+         * @param {number} row 행 인덱스
+         * @param {number} col 열 인덱스
+         * @returns {{x: number, y: number}} 픽셀 좌표 객체
+         */
+        function getTilePositionPx(row, col) {
+            return {
+                x: col * (TILE_SIZE + GAP_SIZE) + GAP_SIZE,
+                y: row * (TILE_SIZE + GAP_SIZE) + GAP_SIZE
+            };
+        }
+
+        /**
+         * 무작위 단일 음절을 생성합니다.
+         * @returns {string} 랜덤 단일 한글 음절
+         */
+        function getRandomInitialSyllable() {
+            const randomIndex = Math.floor(Math.random() * SINGLE_SYLLABLES.length);
+            return SINGLE_SYLLABLES[randomIndex];
+        }
+
+        /**
+         * 두 음절을 합쳐 새로운 음절(단어)을 생성합니다.
+         * @param {string} syllable1 첫 번째 음절 (기존 타일의 음절)
+         * @param {string} syllable2 두 번째 음절 (새롭게 합쳐지는 타일의 음절)
+         * @returns {string} 합쳐진 새로운 음절(단어)
+         */
+        function combineSyllables(syllable1, syllable2) {
+            return syllable1 + syllable2;
+        }
+
+        /**
+         * 음절 문자열을 3음절씩 줄 바꿈하여 HTML 형식으로 반환합니다.
+         * @param {string} syllable 표시할 음절 문자열
+         * @returns {string} <br> 태그가 포함된 HTML 문자열
+         */
+        function formatSyllableText(syllable) {
+            if (syllable.length <= 3) {
+                return syllable;
+            }
+            let formattedText = '';
+            for (let i = 0; i < syllable.length; i += 3) {
+                if (i > 0) {
+                    formattedText += '<br>';
+                }
+                formattedText += syllable.substring(i, i + 3);
+            }
+            return formattedText;
+        }
+
+        // --- 게임 초기화 및 UI 관리 ---
+
+        /**
+         * 게임 보드를 초기화하고, 두 개의 무작위 타일을 추가합니다.
+         */
+        function startGame() {
+            // 보드 데이터 및 DOM 요소 맵 초기화
+            board = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
+            tileElementsMap.forEach(element => element.remove());
+            tileElementsMap.clear();
+            
+            nextTileId = 0;
+            twoPlusSyllableTileCount = 0; // 초기화
+            collectedWordsForReview = []; // 초기화
+            nextReviewWordId = 0; // 초기화
+            isAnimating = false; // 애니메이션 상태 초기화
+
+            initializeBoardUI(); // 그리드 셀 생성
+            
+            // 초기 타일 추가 (애니메이션과 함께)
+            addRandomTile();
+            addRandomTile();
+
+            updateReviewButtonVisibility(); // 버튼 상태 업데이트
+        }
+
+        /**
+         * 게임 보드의 그리드 셀 (빈 칸 배경)을 초기화하여 화면에 그립니다.
+         */
+        function initializeBoardUI() {
+            gameBoardElement.innerHTML = ''; // 기존 내용 모두 제거 (초기화)
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    const gridCell = document.createElement('div');
+                    gridCell.classList.add('grid-cell');
+                    gameBoardElement.appendChild(gridCell);
+                }
+            }
+        }
+
+        /**
+         * 보드의 빈 공간에 무작위로 새로운 단일 음절 타일을 추가합니다.
+         * @returns {boolean} 타일 추가 성공 여부
+         */
+        function addRandomTile() {
+            const emptyCells = [];
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    if (board[r][c] === null) {
+                        emptyCells.push({ r, c });
+                    }
+                }
+            }
+
+            if (emptyCells.length > 0) {
+                const randomEmptyCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+                spawnTile(randomEmptyCell.r, randomEmptyCell.c, getRandomInitialSyllable());
+                return true;
+            }
+            return false; // 빈 셀이 없어서 추가 실패
+        }
+
+        /**
+         * 특정 위치에 새로운 타일을 생성하고 DOM에 추가합니다.
+         * 초기 상태를 설정하여 부드러운 팝인 애니메이션을 만듭니다.
+         * @param {number} row 행 인덱스
+         * @param {number} col 열 인덱스
+         * @param {string} value 타일의 값
+         */
+        function spawnTile(row, col, value) {
+            const newTileId = nextTileId++;
+            const tileElement = document.createElement('div');
+            tileElement.classList.add('tile');
+            tileElement.id = `tile-${newTileId}`;
+            tileElement.innerHTML = formatSyllableText(value); 
+            tileElement.setAttribute('data-value', value);
+            tileElement.setAttribute('data-length', value.length);
+
+            // 초기 상태: 크기 0, 투명도 0, 그리고 완전히 보이지 않게
+            const pos = getTilePositionPx(row, col);
+            tileElement.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(0)`;
+            tileElement.style.opacity = '0';
+            tileElement.style.visibility = 'hidden'; 
+
+            gameBoardElement.appendChild(tileElement);
+
+            // 보드 데이터 업데이트 (ID와 함께 저장)
+            board[row][col] = { value, id: newTileId };
+            // DOM 요소 맵 업데이트
+            tileElementsMap.set(newTileId, tileElement);
+
+            // setTimeout(0)을 사용하여 브라우저가 초기 상태를 렌더링한 후
+            // 최종 상태로 전환되도록 하여 애니메이션이 제대로 시작되게 합니다.
+            setTimeout(() => {
+                tileElement.style.visibility = 'visible';
+                tileElement.style.transform = `translate(${pos.x}px, ${pos.y}px) scale(1)`;
+                tileElement.style.opacity = '1';
+            }, 0); // 0ms 지연
+        }
+
+        // --- 게임 로직 및 애니메이션 처리 ---
+
+        /**
+         * 한 줄(row 또는 column)을 특정 방향으로 이동 및 병합 처리합니다.
+         * 타일의 ID를 재사용하여 병합 결과 타일의 ID를 유지합니다.
+         * @param {Array<object|null>} line 처리할 보드의 한 줄 (타일 객체 또는 null)
+         * @returns {{newLine: Array<object|null>, mergeInfo: Array<object>}}
+         * 처리된 새로운 줄, 병합 정보
+         */
+        function slide(line) {
+            let filteredLine = line.filter(cell => cell !== null);
+            let newLine = [];
+            let mergeInfo = []; // { sourceId: number, targetId: number, targetValue: string }
+
+            for (let i = 0; i < filteredLine.length; i++) {
+                const currentTile = filteredLine[i];
+                const nextTile = (i + 1 < filteredLine.length) ? filteredLine[i + 1] : null;
+
+                let merged = false;
+                if (nextTile !== null) {
+                    const potentialMergedLength = currentTile.value.length + nextTile.value.length;
+                    if (potentialMergedLength <= MAX_MERGE_LENGTH) {
+                        const mergedValue = combineSyllables(currentTile.value, nextTile.value);
+                        
+                        // 병합된 타일은 currentTile의 ID를 재사용합니다.
+                        newLine.push({ value: mergedValue, id: currentTile.id }); 
+                        
+                        // 병합 정보 기록: nextTile이 currentTile로 병합됨
+                        mergeInfo.push({
+                            sourceId: nextTile.id,
+                            targetId: currentTile.id, // currentTile의 ID 재사용
+                            targetValue: mergedValue
+                        });
+                        i++; // nextTile은 이미 병합되었으므로 건너뛰기
+                        merged = true;
+                    }
+                }
+                if (!merged) {
+                    newLine.push(currentTile); // 병합되지 않았으면 그대로 추가
+                }
+            }
+
+            while (newLine.length < boardSize) {
+                newLine.push(null);
+            }
+            return { newLine, mergeInfo };
+        }
+
+        /**
+         * 계산된 애니메이션 지침을 실행합니다.
+         * @param {Array<object>} animations 애니메이션 지침 배열
+         * @returns {Promise<void>} 모든 애니메이션이 완료될 때 resolve되는 Promise
+         */
+        async function executeAnimations(animations) {
+            if (animations.length === 0) {
+                return Promise.resolve();
+            }
+
+            // 1단계: 모든 이동 애니메이션 시작
+            animations.forEach(instr => {
+                if (instr.type === 'move' || instr.type === 'merge_source_move') {
+                    const tileElement = tileElementsMap.get(instr.tileId);
+                    if (tileElement) {
+                        const newPos = getTilePositionPx(instr.toR, instr.toC);
+                        tileElement.style.transform = `translate(${newPos.x}px, ${newPos.y}px)`;
+                        
+                        if (instr.type === 'merge_source_move') {
+                            tileElement.style.zIndex = '3';
+                            // 병합 소스 타일의 제거를 이동 완료 시점에 예약
+                            setTimeout(() => {
+                                tileElement.classList.add('removed-tile'); // 투명도 애니메이션 시작
+                                tileElement.style.visibility = 'hidden'; // 즉시 숨김
+                                setTimeout(() => { // 투명도 애니메이션 완료 후 DOM에서 제거
+                                    tileElement.remove();
+                                    tileElementsMap.delete(instr.tileId);
+                                }, ANIMATION_DURATION);
+                            }, ANIMATION_DURATION); // 이동 애니메이션 시간만큼 기다림
+                        }
+                    }
+                }
+            });
+
+            // 이동 애니메이션이 완료될 때까지 기다림
+            await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATION));
+
+            // 2단계: 이동 완료 후, 병합 타일 업데이트 및 기타 제거 처리
+            animations.forEach(instr => {
+                if (instr.type === 'merge_target_update') {
+                    const tileElement = tileElementsMap.get(instr.tileId);
+                    if (tileElement) {
+                        // 합쳐진 타일의 깜빡임 방지 로직 (임시 숨김 -> 업데이트 -> 재표시)
+                        const originalOpacity = tileElement.style.opacity;
+                        const originalVisibility = tileElement.style.visibility;
+
+                        tileElement.style.opacity = '0';
+                        tileElement.style.visibility = 'hidden';
+
+                        // 타일 내용 및 데이터 속성 업데이트
+                        tileElement.innerHTML = formatSyllableText(instr.value);
+                        tileElement.setAttribute('data-value', instr.value);
+                        tileElement.setAttribute('data-length', instr.value.length);
+                        
+                        // 3음절 이상 단어인 경우 '수집된 단어'로 표시
+                        if (instr.value.length >= MIN_SYLLABLES_FOR_REVIEW) {
+                            tileElement.setAttribute('data-is-long-merge', 'true');
+                            // collectedWordsForReview에 추가 (중복 방지)
+                            const isNewWord = !collectedWordsForReview.some(item => item.word === instr.value);
+                            if (isNewWord) {
+                                collectedWordsForReview.push({ id: nextReviewWordId++, word: instr.value, meaning: null });
+                            }
+                        } else {
+                            tileElement.removeAttribute('data-is-long-merge'); // 3음절 미만이 되면 속성 제거
+                        }
+
+                        // 강제 리플로우
+                        tileElement.offsetHeight; 
+
+                        // 다음 프레임에서 타일을 다시 표시하고 애니메이션 시작
+                        requestAnimationFrame(() => {
+                            tileElement.style.opacity = originalOpacity;
+                            tileElement.style.visibility = originalVisibility;
+
+                            // 병합 타일 애니메이션 시작
+                            tileElement.classList.add('merged-tile'); 
+                            
+                            // 애니메이션 완료 후 클래스 제거 및 z-index 복원
+                            setTimeout(() => {
+                                tileElement.classList.remove('merged-tile');
+                                tileElement.style.zIndex = '2'; 
+                            }, ANIMATION_DURATION);
+                        });
+                    }
+                } else if (instr.type === 'remove') {
+                    // 일반적인 'remove' (merge_source_move가 아닌 경우)
+                    const tileElement = tileElementsMap.get(instr.tileId);
+                    if (tileElement) {
+                        tileElement.classList.add('removed-tile');
+                        tileElement.style.visibility = 'hidden';
+                        setTimeout(() => {
+                            tileElement.remove();
+                            tileElementsMap.delete(instr.tileId);
+                        }, ANIMATION_DURATION);
+                    }
+                }
+            });
+
+            // 모든 애니메이션이 최종적으로 완료될 시간을 기다림 (업데이트 애니메이션 포함)
+            await new Promise(resolve => setTimeout(resolve, ANIMATION_DURATION));
+        }
+
+        /**
+         * 사용자의 키보드 입력에 따라 보드를 이동하고 애니메이션을 실행합니다.
+         * @param {string} direction 'left', 'right', 'up', 'down'
+         */
+        async function move(direction) {
+            if (isAnimating) return; // 애니메이션 중에는 입력 무시
+            isAnimating = true; // 애니메이션 시작
+
+            // 이동 전 보드 상태를 복사 (ID 포함)
+            const prevBoard = JSON.parse(JSON.stringify(board));
+            let currentBoardForSlide = JSON.parse(JSON.stringify(board)); 
+            let tempBoard = Array(boardSize).fill(null).map(() => Array(boardSize).fill(null));
+
+            let currentMergeInfos = []; 
+
+            // 각 행/열에 대해 슬라이드 로직 실행
+            for (let i = 0; i < boardSize; i++) {
+                let lineToSlide;
+                let newLineResult;
+                let mergeResult;
+
+                if (direction === 'left' || direction === 'right') {
+                    lineToSlide = currentBoardForSlide[i];
+                    ({ newLine: newLineResult, mergeInfo: mergeResult } = slide(lineToSlide));
+                    
+                    if (direction === 'right') {
+                         newLineResult.reverse();
+                    }
+                    for (let j = 0; j < boardSize; j++) {
+                        tempBoard[i][j] = newLineResult[j];
+                    }
+                } else { // 'up' or 'down'
+                    lineToSlide = [];
+                    for (let r_ = 0; r_ < boardSize; r_++) lineToSlide.push(currentBoardForSlide[r_][i]);
+                    
+                    if (direction === 'down') {
+                        lineToSlide.reverse();
+                    }
+
+                    ({ newLine: newLineResult, mergeInfo: mergeResult } = slide(lineToSlide));
+                    
+                    if (direction === 'down') {
+                        newLineResult.reverse();
+                    }
+                    for (let r_ = 0; r_ < boardSize; r_++) {
+                        tempBoard[r_][i] = newLineResult[r_];
+                    }
+                }
+                mergeResult.forEach(mInfo => {
+                    let found = false;
+                    for(let r_temp = 0; r_temp < boardSize; r_temp++) {
+                        for(let c_temp = 0; c_temp < boardSize; c_temp++) {
+                            if(tempBoard[r_temp][c_temp] && tempBoard[r_temp][c_temp].id === mInfo.targetId) {
+                                currentMergeInfos.push({
+                                    sourceId: mInfo.sourceId,
+                                    targetId: mInfo.targetId,
+                                    targetValue: mInfo.targetValue,
+                                    targetR: r_temp,
+                                    targetC: c_temp
+                                });
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found) break;
+                    }
+                });
+            }
+            
+            // `tempBoard`와 `prevBoard`를 비교하여 애니메이션 지침 생성
+            let animations = [];
+            let updatedBoardState = JSON.parse(JSON.stringify(tempBoard)); // 최종 보드 상태 (애니메이션이 완료된 후의 데이터)
+
+            // 1. 사라지거나 이동하는 타일
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    const prevTile = prevBoard[r][c];
+                    if (prevTile) {
+                        let currentTileInTemp = null;
+                        let currentR = -1, currentC = -1;
+
+                        for (let tr = 0; tr < boardSize; tr++) {
+                            for (let tc = 0; tc < boardSize; tc++) {
+                                if (tempBoard[tr][tc] && tempBoard[tr][tc].id === prevTile.id) {
+                                    currentTileInTemp = tempBoard[tr][tc];
+                                    currentR = tr;
+                                    currentC = tc;
+                                    break;
+                                }
+                            }
+                            if (currentTileInTemp) break;
+                        }
+                        
+                        const isMergeSource = currentMergeInfos.find(m => m.sourceId === prevTile.id);
+
+                        if (currentTileInTemp) {
+                            if (r !== currentR || c !== currentC) {
+                                if (!isMergeSource) {
+                                    animations.push({
+                                        type: 'move',
+                                        tileId: prevTile.id,
+                                        toR: currentR, toC: currentC
+                                    });
+                                }
+                            }
+                            if (isMergeSource) {
+                                animations.push({
+                                    type: 'merge_source_move',
+                                    tileId: prevTile.id,
+                                    toR: isMergeSource.targetR,
+                                    toC: isMergeSource.targetC
+                                });
+                            }
+                        } else {
+                            const alreadyRemoved = animations.some(a => a.type === 'remove' && a.tileId === prevTile.id);
+                            if (!alreadyRemoved) { 
+                                animations.push({ type: 'remove', tileId: prevTile.id });
+                            }
+                        }
+                    }
+                }
+            }
+
+            // 2. 병합된 타일의 값 업데이트 
+            currentMergeInfos.forEach(mInfo => {
+                animations.push({
+                    type: 'merge_target_update',
+                    tileId: mInfo.targetId,
+                    value: mInfo.targetValue
+                });
+            });
+
+            // 3. 실제 보드 데이터 업데이트
+            board = updatedBoardState;
+            
+            // 모든 애니메이션 실행 및 완료 대기
+            await executeAnimations(animations);
+
+            // 새 타일 추가 
+            const newTileAdded = addRandomTile();
+
+            // 이동이 실제로 있었는지 확인 (새로운 타일이 추가되었거나 보드 상태가 변경되었을 때)
+            let hasMoved = newTileAdded || !areBoardsEqual(prevBoard, board);
+
+            // 이동이 실제로 있었고 (아니면 게임 시작 시), twoPlusSyllableTileCount를 다시 계산
+            if (hasMoved) {
+                recalculateTwoPlusSyllableTileCount();
+                updateReviewButtonVisibility();
+            }
+            
+            isAnimating = false; // 애니메이션 종료
+        }
+
+        /**
+         * 보드에 현재 존재하는 3음절 이상 합쳐진 타일의 개수를 재계산합니다.
+         */
+        function recalculateTwoPlusSyllableTileCount() { // 함수명 변경
+            twoPlusSyllableTileCount = 0; 
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    const tile = board[r][c];
+                    if (tile) {
+                        // 타일의 음절 길이가 2 이상이면 카운트를 증가시킵니다.
+                        // data-is-long-merge 속성 여부는 '단어 확인' 버튼 활성화 조건에 영향을 주지 않습니다.
+                        // 이 부분을 아래와 같이 `tile.value.length >= 2`로 변경합니다.
+                        if (tile.value.length >= 2) { 
+                            twoPlusSyllableTileCount++;
+                        }
+                    }
+                }
+            }
+        }
+
+        /**
+         * 두 보드가 동일한지 비교합니다. (애니메이션 후 변화 여부 확인용)
+         * @param {Array<Array<object|null>>} board1
+         * @param {Array<Array<object|null>>} board2
+         * @returns {boolean} 동일하면 true, 다르면 false
+         */
+        function areBoardsEqual(board1, board2) {
+            for (let r = 0; r < boardSize; r++) {
+                for (let c = 0; c < boardSize; c++) {
+                    const tile1 = board1[r][c];
+                    const tile2 = board2[r][c];
+                    if (tile1 === null && tile2 === null) continue;
+                    if (tile1 === null || tile2 === null) return false;
+                    if (tile1.value !== tile2.value || tile1.id !== tile2.id) return false;
+                }
+            }
+            return true;
+        }
+
+        /**
+         * '단어 확인' 버튼의 표시 여부를 업데이트합니다.
+         */
+        function updateReviewButtonVisibility() {
+            if (twoPlusSyllableTileCount >= MIN_MERGED_TILES_FOR_BUTTON) {
+                reviewWordsButton.style.display = 'block';
+            } else {
+                reviewWordsButton.style.display = 'none';
+            }
+        }
+
+        /**
+         * 수집된 단어 오버레이를 표시합니다.
+         */
+        function showReviewOverlay() {
+            wordListContainer.innerHTML = ''; // 기존 목록 초기화
+
+            if (collectedWordsForReview.length === 0) {
+                wordListContainer.innerHTML = '<p>수집된 단어가 없습니다.</p>';
+            } else {
+                collectedWordsForReview.forEach(wordObj => {
+                    const wordItem = document.createElement('div');
+                    wordItem.classList.add('word-item');
+                    wordItem.innerHTML = `
+                        <strong>${wordObj.word}</strong>
+                        <input type="text" data-word-id="${wordObj.id}" placeholder="뜻 입력" value="${wordObj.meaning || ''}">
+                    `;
+                    wordListContainer.appendChild(wordItem);
+
+                    // 입력 필드에 입력된 값을 collectedWordsForReview에 반영
+                    const inputField = wordItem.querySelector(`input[data-word-id="${wordObj.id}"]`);
+                    inputField.addEventListener('input', (e) => {
+                        wordObj.meaning = e.target.value;
+                    });
+                });
+            }
+            wordReviewOverlay.style.display = 'flex';
+        }
+
+        /**
+         * 수집된 단어 오버레이를 숨기고, 수집된 단어 목록 및 관련 상태를 초기화합니다.
+         */
+        function closeReviewOverlay() {
+            wordReviewOverlay.style.display = 'none';
+            // 수집된 단어 목록 초기화
+            collectedWordsForReview = [];
+            nextReviewWordId = 0;
+
+            // 보드에 있는 모든 타일의 data-is-long-merge 속성 제거
+            tileElementsMap.forEach(tileEl => {
+                tileEl.removeAttribute('data-is-long-merge');
+            });
+            twoPlusSyllableTileCount = 0; // 카운트 초기화
+            updateReviewButtonVisibility(); // 버튼 다시 숨김
+        }
+
+        // --- 이벤트 리스너 ---
+
+        // 키보드 입력 처리
+        document.addEventListener('keydown', async (e) => {
+            if (isAnimating || wordReviewOverlay.style.display === 'flex') return; // 애니메이션 중이거나 오버레이가 열려있으면 입력 무시
+
+            switch (e.key) {
+                case 'ArrowLeft':
+                    await move('left');
+                    break;
+                case 'ArrowRight':
+                    await move('right');
+                    break;
+                case 'ArrowUp':
+                    await move('up');
+                    break;
+                case 'ArrowDown':
+                    await move('down');
+                    break;
+                default:
+                    return;
+            }
+            e.preventDefault(); // 기본 스크롤 동작 방지
+        });
+
+        // '새 게임' 버튼 클릭 처리
+        resetButton.addEventListener('click', startGame);
+
+        // '단어 확인' 버튼 클릭 처리
+        reviewWordsButton.addEventListener('click', showReviewOverlay);
+
+        // 오버레이 '닫기' 버튼 클릭 처리
+        closeReviewButton.addEventListener('click', closeReviewOverlay);
+
+        // 페이지 로드 시 게임 시작
+        document.addEventListener('DOMContentLoaded', startGame);
+    </script>
+</body>
+</html>
