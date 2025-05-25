@@ -363,7 +363,7 @@
             } else if (event.key === 'ArrowDown') {
                 // 아래 방향키를 누르고 있는 동안 빠르게 떨어뜨림
                 if (!fastDropInterval && currentJamo) {
-                    fastDropInterval = setInterval(dropJamoFast, 100); // 0.03초마다 이동 (더 짧은 간격)
+                    fastDropInterval = setInterval(dropJamoFast, 100); // 0.05초마다 이동 (더 짧은 간격)
                 }
             }
         });
