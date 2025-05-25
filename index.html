@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+ddd<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial=" initial-scale="1.0">
-    <title>femmeme</title>
+    <title>텍스트 아스키 아트</title>
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding&display=swap" rel="stylesheet">
     <style>
 
@@ -118,7 +118,7 @@
         /* 아스키 아트 컨테이너들의 공통 스타일 */
         .ascii-container {
             position: absolute;
-            top: 46%; /* SNAKE와 동일한 중앙 위치 */
+            top: 45.9%; /* SNAKE와 동일한 중앙 위치 */
             left: 50%;
             transform: translate(-50%, -50%);
             white-space: pre; /* 공백과 줄 바꿈 유지 */
@@ -130,6 +130,7 @@
             pointer-events: none; /* 아스키 아트 위로 마우스 이벤트를 통과시킴 */
             color: fuchsia; /* 아스키 아트 텍스트 색상 */
             font-weight: bold; /* 아스키 아트 텍스트 굵기 */
+            -webkit-text-stroke: 2px fuchsia;
         }
     </style>
 </head>
@@ -172,25 +173,25 @@
 
         // --- 아스키 아트 텍스트 정의 ---
         const snakeAsciiText = `
- SSS  N   N    A    K   K EEEEE
-S     NN  N   A A   K  K  E
- SSS  N N N  AAAAA  KK    EEEE
-    S N  NN  A   A  K  K  E
-SSSS  N   N  A   A  K   K EEEEE
+ XXXX X   X   X   X   X XXXXX
+X     XX  X  X X  X  X  X
+ XXX  X X X XXXXX XXX   XXXX
+    X X  XX X   X X  X  X
+XXXX  X   X X   X X   X XXXXX
 `;
         const tetrisAsciiText = `
-TTTTT EEEEE TTTTT RRRR  IIIII  SSS
-  T   E       T   R   R   I   S
-  T   EEEE    T   RRRR    I    SSS
-  T   E       T   R R     I       S
-  T   EEEEE   T   R   R IIIII SSSS
+XXXXX XXXXX XXXXX XXXX  XXXXX  XXXX
+  X   X       X   X   X   X   X
+  X   XXXX    X   XXXX    X    XXX
+  X   X       X   X  X    X       X
+  X   XXXXX   X   X   X XXXXX XXXX
 `;
         const twoZeroFourEightAsciiText = `
- 222  00000  4   4   888
-2   2 0   0  4   4  8   8
-   2  0   0  44444   888
- 2    0   0      4  8   8
-22222 00000      4   888
+ XXX  XXXXX X   X  XXX
+X   X X   X X   X X   X
+   X  X   X XXXXX  XXX
+ X    X   X     X X   X
+XXXXX XXXXX     X  XXX
 `;
         // 각 아스키 아트 컨테이너에 텍스트 할당
         snakeAsciiContainer.textContent = snakeAsciiText;
