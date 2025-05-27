@@ -29,6 +29,8 @@
             position: relative;
             display: none; /* 초기 숨김 */
             background-color: black;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
         }
         #start-selection {
             margin-bottom: 20px;
@@ -51,8 +53,6 @@
         }
 
         .chosung-option:hover {
-            /*background:linear-gradient(45deg,#FFDC80,#F77737,#FD1D1D, #C13584, #833AB4);
-            background-size: 800%;*/
             filter:blur(3px);
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -82,9 +82,6 @@
             font-size: 20px;
             background-color: #FF0000; /* '글자 조합' 버튼과 동일한 색상 */
             color: white;
-            /*outline-style: solid;
-            outline-color:#FF0000;
-            outline-width: 2.5px;*/
             border: none;
             border-radius: 4px;
             cursor: pointer;
@@ -102,6 +99,9 @@
             display: none;
             flex-direction: column; /* 세로로 배치 */
             align-items: center; /* 가운데 정렬 */
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            background-color: black; /* 배경색 설정 */
         }
         #combination-area h2 {
             position: absolute;
@@ -115,10 +115,17 @@
             margin-bottom: 20px;
             font-weight: 700;
             text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 20px;
+            min-height: 200px;
+            box-sizing: border-box;
+            width: 80%;
+            margin-top: 10%;
         }
         .draggable-jamo {
             display: inline-block;
-            margin: 7px d3px;
+            margin: 7px 3px;
             padding: 9px 13px;
             border-radius: 50%;
             cursor: grab;
@@ -142,9 +149,6 @@
             font-size: 20px;
             background-color: #FF0000; /* '글자 조합' 버튼과 동일한 색상 */
             color: white;
-            /*outline-style: solid;
-            outline-color:#FF0000;
-            outline-width: 2.5px;*/
             border: none;
             border-radius: 4px;
             margin-top: 20px; /* 기존 margin 제거 */
@@ -168,6 +172,7 @@
             }
         }
     </script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
 </head>
 <body>
     <div id="start-selection">
@@ -199,7 +204,7 @@
     <div id="combination-area">
         <h2></h2>
         <div id="captured-jamo"></div>
-        <button id="capture-result">* 나의 밈-뱀 공유하기 *</button>
+        <button id="capture-result">* 나의 밈 저장하기 *</button>
     </div>
 
     <script type="module">
@@ -258,6 +263,14 @@
             gameContainer.style.display = 'none';
             combinationArea.style.display = 'flex';
             displayCapturedJamo();
+            // 다음 단계로 넘어갈 때 nextButton과 captureResultButton의 숨김을 해제
+            nextButton.classList.remove('hidden');
+            captureResultButton.classList.remove('hidden');
+        });
+
+        // 캡쳐 버튼 클릭 이벤트 리스너 추가
+        captureResultButton.addEventListener('click', () => {
+            captureAndSaveResult();
         });
 
         function init() {
@@ -273,7 +286,7 @@
             renderer = new THREE.WebGLRenderer({ antialias: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setClearColor(0xffffff); // Three.js 배경색을 흰색으로 설정
+            renderer.setClearColor(0x000000); // Three.js 배경색을 검정색으로 설정
             gameContainer.appendChild(renderer.domElement);
 
             // 폰트 로더
@@ -304,10 +317,10 @@
 
         function createTextSegment(char, color) {
             const textGeometry = new TextGeometry(char, {
-            font: font,
-            size: 1,
-            height: 0.1,
-            curveSegments: 12
+                font: font,
+                size: 1,
+                height: 0.1,
+                curveSegments: 12
             });
             const textMaterial = new THREE.MeshBasicMaterial({ color: color });
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
@@ -438,12 +451,6 @@
             letterJustEaten = null; // 다음 프레임에서 충돌 감지 가능하도록 초기화
         }
 
-        /*function gameOver() {
-            isMoving = false;
-            alert('게임 오버!');
-            // TODO: 게임 재시작 로직
-        }*/
-
         function move() {
             if (!isMoving || playerSegments.length === 0) return;
 
@@ -493,7 +500,7 @@
         }
 
         function displayCapturedJamo() {
-            capturedJamoDiv.innerHTML = '획득한 자모: ';
+            capturedJamoDiv.innerHTML = '';
             draggableJamoElements = [];
             collectedLetters.forEach(item => {
                 const jamoSpan = document.createElement('span');
@@ -532,6 +539,56 @@
             document.removeEventListener('mousemove', onDragMove);
             document.removeEventListener('mouseup', onDragEnd);
             draggedJamo = null;
+        }
+
+        /* 랜덤 색상을 생성하는 헬퍼 함수 (index.html에도 필요)
+        function getRandomColor() {
+            const letters = '0123456789ABCDEF';
+            let color = '#';
+            for (let i = 0; i < 6; i++) {
+                color += letters[Math.floor(Math.random() * 16)];
+            }
+            return color;
+        }*/
+
+
+        // --- 캡쳐 및 저장 기능 수정 (archives.html 저장 및 버튼 일시 숨김) ---
+        async function captureAndSaveResult() {
+            // 캡처 전에 "나의 밈 저장장하기" 버튼을 일시적으로 숨김
+            captureResultButton.classList.add('hidden');
+
+            // 캡처할 요소는 전체 body
+            const elementToCapture = document.body;
+
+            // html2canvas를 사용하여 캡쳐
+            html2canvas(elementToCapture, {
+                backgroundColor: 'black', // 배경색을 검정색으로 지정
+            }).then(canvas => {
+                const imageData = canvas.toDataURL('image/png'); // Base64 인코딩된 이미지 데이터
+                //const capturedBackgroundColor = getRandomColor(); // 캡처 시점에 랜덤 색상 생성
+                
+                // localStorage에 저장
+                let archives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+                archives.unshift({ // 최신 이미지가 가장 위에 오도록 unshift 사용
+                    id: Date.now(), // 고유 ID (타임스탬프)
+                    timestamp: new Date().toLocaleString(), // 캡쳐 시간
+                    imageData: imageData,
+                    //backgroundColor: capturedBackgroundColor // 생성된 랜덤 배경색 저장
+                });
+                localStorage.setItem('memeSnakeArchives', JSON.stringify(archives));
+
+                alert('저장되었습니다!');
+                // 캡처 후 "나의 밈 저장장하기" 버튼을 다시 보이게 함
+                captureResultButton.classList.remove('hidden');
+
+                // 필요하다면 archives.html로 이동 (선택 사항)
+                // window.location.href = 'archives.html';
+            }).catch(error => {
+                console.error('캡쳐 중 오류 발생:', error);
+                alert('저장에 실패했습니다.');
+                // 오류 발생 시에도 버튼을 다시 보이게 함
+                captureResultButton.classList.remove('hidden');
+            });
         }
     </script>
 </body>
