@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>STORAGE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+        body {
+            font-family: "Orbit", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            margin: 20px;
+            background-color: black;
+            color: #F2F0EF;
+            text-align: center;
+            user-select:none;
+            cursor: crosshair;
+        }
+        h1 {
+            color: fuchsia;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        #archive-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .archive-item {
+            border: 2px solid fuchsia;
+            padding: 5px 15px;
+            width: 330px; /* 각 캡쳐 이미지 컨테이너의 너비 조정 */
+            height:fit-content;
+            text-align: left;
+            position: relative; /* 삭제 버튼 위치 조정을 위해 추가 */
+            box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+        }
+        .archive-item img {
+            max-width: 100%;
+            height: auto;
+            display: block; /* 이미지 하단 여백 제거 */
+            margin-bottom: 10px;
+        }
+        /* 기존 .archive-item p 스타일은 유지 */
+        .archive-item p {
+            font-size: 0.9em;
+            color: #F2F0EF;
+            margin: 0; /* 기본 마진 제거 */
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FF0000;
+            color: #F2F0EF;
+            border: none;
+            border-radius: 50%;
+            padding: 3px 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: .2s ease-in-out;            
+        }
+        .delete-button:hover {
+            background-color: #8c0000;
+            -webkit-transition: .2s ease-in-out;
+            transition: .2s ease-in-out;
+        }
+        
+        /* 스크롤바 전체 기본 꾸미기 */
+        body::-webkit-scrollbar {
+            width: 20px;
+            height: 50px;
+        }
+
+        /* 스크롤바 막대 꾸미기 (RIGHT SIDE)*/
+        body::-webkit-scrollbar-thumb:vertical {
+            background:fuchsia
+        }
+        
+        #no-archives {
+            color: #F2F0EF;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+
+        /*트리거*/
+        /* 공통 트리거 스타일 */
+        .trigger-shape {
+            position: fixed; /* 뷰포트에 고정 */
+            width: 70px; /* 원형 도형과 동일한 크기 */
+            height: 70px; /* 원형 도형과 동일한 크기 */
+            cursor: pointer;
+            z-index: 10; /* 가장 위에 위치 */
+            transition: background-color 0.3s ease, border-radius 0.3s ease;
+        }
+
+        /* 개별 트리거 스타일 */
+        #circle-trigger {
+            top: 25px;
+            left: 25px;
+            background-color: red;
+            border-radius: 50%; /* 원형 */
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #circle-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger {
+            height: 64px;
+            width: 64px;
+            top: 120px;
+            left: 28px; /* 원형 도형과 같은 왼쪽 정렬 */
+            background-color:rgb(255, 255, 35);
+            border-radius: 0; /* 사각형 */
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger {
+            height: 68px;
+            width: 68px;
+            top: 214px;
+            left: 26px; /* 원형 도형과 같은 왼쪽 정렬 */
+            background-color:rgb(0, 255, 220);
+            border-radius: 20px; /* 라운딩 코너 (원하는 값으로 조절) */
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        /* 캡처 시각과 다운로드 버튼을 포함할 컨테이너 스타일 */
+        .info-and-download-container {
+            display: flex; /* 자식 요소를 가로로 정렬 */
+            justify-content: space-between; /* 양쪽 끝으로 분리 */
+            align-items: center; /* 세로 중앙 정렬 */
+            margin-top: 10px; /* 이미지와 위쪽 여백 */
+            margin-bottom: 5px; /* 아래쪽 여백 */
+            padding: 0 5px; /* 좌우 패딩 */
+        }
+
+        .download-button {
+            background-color: #ff0000; /* 빨간색 */
+            color: #F2F0EF;
+            border: none;
+            padding: 8px 10px; /* 버튼 패딩 조정 */
+            cursor: pointer;
+            font-size: 0.8em; /* 폰트 크기 조정 */
+            text-decoration: none; /* 링크 밑줄 제거 */
+            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+            margin-bottom: 3px;
+            margin-right: -8px;
+            transition: .2s ease-in-out;
+        }
+
+        .download-button:hover {
+            background-color: #8C0000;
+            -webkit-transition: .2s ease-in-out;
+            transition: .2s ease-in-out;
+        }
+
+    </style>
+</head>
+<body>
+    <h1>Storage</h1>
+    <div id="archive-container"></div>
+    <div id="no-archives" style="display: none;">Loading...</div>
+    <div id="circle-trigger" class="trigger-shape" onclick=""></div>
+    <div id="square-trigger" class="trigger-shape" onclick=""></div>
+    <div id="rounded-square-trigger" class="trigger-shape" onclick=""></div>
+    <script>
+        let previousArchiveCount = 0; // 이전에 로드된 아카이브 개수를 저장할 변수
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadArchives();
+            // 5초(5000ms)마다 아카이브를 확인하고 필요한 경우 새로고침
+            setInterval(checkAndLoadArchives, 5000); 
+        });
+
+        function checkAndLoadArchives() {
+            // snake game archives와 2048 game archives 모두 확인
+            const snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+            const game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length;
+
+            // 현재 아카이브 개수가 이전과 다르면 새로고침
+            if (currentTotalArchiveCount !== previousArchiveCount) {
+                loadArchives();
+                previousArchiveCount = currentTotalArchiveCount; // 개수 업데이트
+            }
+        }
+
+        function loadArchives() {
+            const archiveContainer = document.getElementById('archive-container');
+            const noArchivesMessage = document.getElementById('no-archives');
+            
+            // 두 종류의 아카이브 데이터를 모두 불러옵니다.
+            let snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+            let game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            
+            // 두 아카이브를 합치고, 랜덤하게 정렬합니다.
+            let allArchives = [...snakeArchives, ...game2048Archives];
+            // Fisher-Yates shuffle algorithm for random sorting
+            for (let i = allArchives.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [allArchives[i], allArchives[j]] = [allArchives[j], allArchives[i]];
+            }
+
+            previousArchiveCount = allArchives.length; // 현재 로드된 아카이브 개수를 저장
+
+            if (allArchives.length === 0) {
+                noArchivesMessage.textContent = '아카이브가 없습니다.'; // 메시지 변경
+                noArchivesMessage.style.display = 'block';
+                archiveContainer.innerHTML = ''; // 아카이브가 없을 때 컨테이너 비우기
+                return;
+            } else {
+                noArchivesMessage.style.display = 'none';
+            }
+
+            archiveContainer.innerHTML = ''; // 기존 내용 지우기
+            allArchives.forEach(item => {
+                const archiveItemDiv = document.createElement('div');
+                archiveItemDiv.className = 'archive-item';
+                
+                // --- 저장된 배경색을 불러와 적용합니다. (memeSnakeArchives에서 온 경우) ---
+                if (item.backgroundColor) { 
+                    archiveItemDiv.style.backgroundColor = item.backgroundColor;
+                } else {
+                    // 2048 게임 스크린샷에는 backgroundColor가 저장되지 않으므로 기본값 black
+                    // 또는 snake archives와 동일한 스타일로 보이게 하고 싶다면 fuchsia나 다른 색상 사용
+                    archiveItemDiv.style.backgroundColor = 'black'; 
+                }
+                // ------------------------------------------
+
+                const img = document.createElement('img');
+                img.src = item.imageData;
+                // 이미지 alt 속성 설정 (어떤 게임에서 왔는지 구분)
+                if (item.imageData.includes('2048_screenshot')) { // 2048에서 온 스크린샷임을 가정
+                    img.alt = `2048 Game Screenshot at ${item.timestamp}`;
+                } else {
+                    img.alt = `Meme Snake at ${item.timestamp}`;
+                }
+
+                archiveItemDiv.appendChild(img);
+
+                // --- 캡처 시각 텍스트와 다운로드 버튼을 담을 컨테이너 생성 ---
+                const infoAndDownloadContainer = document.createElement('div');
+                infoAndDownloadContainer.className = 'info-and-download-container';
+
+                const timestampP = document.createElement('p');
+                const dateTimeString = item.timestamp; // 예: "2023-10-27 14:35:00"
+
+                // 날짜와 시간 문자열을 파싱합니다.
+                // 정규 표현식을 사용하여 YYYY-MM-DD HH:MM:SS 형식을 파싱합니다.
+                const parts = dateTimeString.match(/(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const datePart = parts[1]; // "YYYY-MM-DD"
+                    let hours = parseInt(parts[2]); // 시간 (0-23)
+                    const minutes = parts[3]; // 분
+
+                    const ampm = hours >= 12 ? '오후' : '오전'; // 오전/오후 결정
+                    hours = hours % 12; // 12시간 형식으로 변경 (0-11)
+                    hours = hours ? hours : 12; // 시간 '0'을 '12'로 변경 (예: 0시 -> 12시 AM)
+                    const displayHours = hours.toString().padStart(2, '0'); // 시간을 두 자리로 표시 (예: '01', '12')
+
+                    const timePartFormatted = `${ampm}${displayHours}:${minutes}`; // 최종 시간 문자열 (예: "오후 02:35")
+                    
+                } else {
+                    // 파싱 실패 시 원래 타임스탬프 표시 (예외 처리)
+                    timestampP.textContent = dateTimeString;
+                }
+
+                // 시간 텍스트를 약간 위로 올리기 위한 스타일 추가
+                timestampP.style.position = 'relative';
+                timestampP.style.marginRight = '-10px';
+                timestampP.style.marginLeft = '-6px';
+                infoAndDownloadContainer.appendChild(timestampP);
+
+
+
+
+                // --------------------------------------------------------               
+                const downloadButton = document.createElement('a'); // <a> 태그 사용
+                downloadButton.className = 'download-button';
+                downloadButton.textContent = 'Download';
+                downloadButton.href = item.imageData; // 이미지 데이터(Base64)를 href로 설정
+                // 다운로드될 파일 이름 설정: 어떤 게임에서 왔는지에 따라 다르게
+                if (item.imageData.includes('2048_screenshot')) { // 2048에서 온 스크린샷임을 가정
+                    downloadButton.download = `2048_screenshot_${item.id}.png`; 
+                } else {
+                    downloadButton.download = `meme_snake_${item.id}.png`;
+                }
+                
+                infoAndDownloadContainer.appendChild(downloadButton);
+                
+                archiveItemDiv.appendChild(infoAndDownloadContainer); // 컨테이너를 archiveItemDiv에 추가
+
+
+
+                // --------------------------------------------------------
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.textContent = '×';
+                deleteButton.onclick = () => {
+                    // 삭제 시 어떤 localStorage 키에서 삭제해야 하는지 구분
+                    if (item.imageData.includes('2048_screenshot')) {
+                        deleteArchiveItem(item.id, 'meme2048Archives');
+                    } else {
+                        deleteArchiveItem(item.id, 'memeSnakeArchives');
+                    }
+                };
+                archiveItemDiv.appendChild(deleteButton);
+                
+                archiveContainer.appendChild(archiveItemDiv);
+            });
+        }
+
+        // keyName 매개변수를 추가하여 어떤 localStorage 키에서 삭제할지 지정
+        function deleteArchiveItem(idToDelete, keyName) {
+            let archives = JSON.parse(localStorage.getItem(keyName)) || [];
+            archives = archives.filter(item => item.id !== idToDelete);
+            localStorage.setItem(keyName, JSON.stringify(archives));
+            loadArchives(); // 삭제 후 목록 새로고침
+        }
+
+        // 기존 트리거 클릭 핸들러 (내용 변경 없음)
+        document.getElementById('circle-trigger').onclick = function() {
+            // console.log("Circle Trigger Clicked!");
+        };
+        document.getElementById('square-trigger').onclick = function() {
+            // console.log("Square Trigger Clicked!");
+        };
+        document.getElementById('rounded-square-trigger').onclick = function() {
+            // console.log("Rounded Square Trigger Clicked!");
+        };
+    </script>
+</body>
+</html>
+
+//지금 2048에서 불러온 스크린샷 삭제 안 먹힘
