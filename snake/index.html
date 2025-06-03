@@ -60,10 +60,11 @@
 
         #start-info {
             position: absolute;
-            top: 5%;
+            top: 7%;
             left: 50%;
             transform: translate(-50%, -50%);
             font-size: 20px;
+            font-weight: 700 !important;
             text-align: center;
             pointer-events: none;
         }
@@ -517,24 +518,55 @@
 
         function onDragStart(event) {
             draggedJamo = event.target;
-            dragOffsetX = event.clientX - draggedJamo.getBoundingClientRect().left;
-            dragOffsetY = event.clientY - draggedJamo.getBoundingClientRect().top;
+
+            // dragOffsetX, dragOffsetY 계산 수정:
+            // draggedJamo의 부모 요소 (여기서는 capturedJamoDiv)의 getBoundingClientRect를 기준으로
+            // 마우스 클릭 위치(event.clientX/Y)의 상대 좌표를 구합니다.
+            // 그리고 draggedJamo의 현재 offsetLeft/Top (부모 기준 실제 렌더링된 위치)과의 차이를 계산합니다.
+            const parentRect = draggedJamo.offsetParent.getBoundingClientRect(); // offsetParent 사용
+            const mouseXInParent = event.clientX - parentRect.left;
+            const mouseYInParent = event.clientY - parentRect.top;
+
+            // draggedJamo.offsetLeft과 draggedJamo.offsetTop은
+            // 이미 부모 요소(offsetParent) 기준의 상대 위치입니다.
+            dragOffsetX = mouseXInParent - draggedJamo.offsetLeft;
+            dragOffsetY = mouseYInParent - draggedJamo.offsetTop;
+
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
+
+            // position: 'absolute'와 zIndex는 mousedown 시점에 바로 적용
             draggedJamo.style.position = 'absolute';
             draggedJamo.style.zIndex = 1000;
+
+            // 첫 클릭 시 바로 이동하지 않도록 초기 위치 업데이트는 onDragMove에서 처리
         }
 
         function onDragMove(event) {
             if (!draggedJamo) return;
-            draggedJamo.style.left = event.clientX - dragOffsetX + 'px';
-            draggedJamo.style.top = event.clientY - dragOffsetY + 'px';
+            event.preventDefault(); // 드래그 중 텍스트 선택 등 기본 동작 방지
+
+            const parentRect = draggedJamo.offsetParent.getBoundingClientRect();
+            // 부모 요소(offsetParent) 내부에서의 마우스 현재 위치
+            const mouseXInParent = event.clientX - parentRect.left;
+            const mouseYInParent = event.clientY - parentRect.top;
+
+            // 새로운 left, top 위치는 (부모 내부 마우스 위치 - 드래그 시작 시 오프셋)
+            let newLeft = mouseXInParent - dragOffsetX;
+            let newTop = mouseYInParent - dragOffsetY;
+
+            draggedJamo.style.left = newLeft + 'px';
+            draggedJamo.style.top = newTop + 'px';
         }
 
         function onDragEnd() {
             if (!draggedJamo) return;
             document.removeEventListener('mousemove', onDragMove);
             document.removeEventListener('mouseup', onDragEnd);
+            
+            // 드래그가 끝나면 zIndex는 원래대로 돌리거나 낮춰도 됩니다. (선택 사항)
+            // draggedJamo.style.zIndex = ''; // 또는 '' 로 설정하여 CSS의 기본값으로 돌아가게 함
+            
             draggedJamo = null;
         }
 
@@ -575,7 +607,7 @@
                 localStorage.setItem('memeSnakeArchives', JSON.stringify(archives));
 
                 alert('저장되었습니다!');
-                // 캡처 후 "나의 밈 저장하기" 버튼을 다시 보이게 함
+                // 캡처 후 "나의 밈 저장장하기" 버튼을 다시 보이게 함
                 captureResultButton.classList.remove('hidden');
 
                 // 필요하다면 archives.html로 이동 (선택 사항)
