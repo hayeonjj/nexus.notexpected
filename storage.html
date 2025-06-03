@@ -43,7 +43,6 @@
             display: block; /* 이미지 하단 여백 제거 */
             margin-bottom: 10px;
         }
-        /* 기존 .archive-item p 스타일은 유지 */
         .archive-item p {
             font-size: 0.9em;
             color: #F2F0EF;
@@ -60,7 +59,7 @@
             padding: 3px 10px;
             cursor: pointer;
             font-size: 1.5em;
-            transition: .2s ease-in-out;            
+            transition: .2s ease-in-out;          
         }
         .delete-button:hover {
             background-color: #8c0000;
@@ -68,13 +67,11 @@
             transition: .2s ease-in-out;
         }
         
-        /* 스크롤바 전체 기본 꾸미기 */
         body::-webkit-scrollbar {
             width: 20px;
             height: 50px;
         }
 
-        /* 스크롤바 막대 꾸미기 (RIGHT SIDE)*/
         body::-webkit-scrollbar-thumb:vertical {
             background:fuchsia
         }
@@ -85,23 +82,25 @@
             margin-top: 50px;
         }
 
-        /*트리거*/
-        /* 공통 트리거 스타일 */
         .trigger-shape {
-            position: fixed; /* 뷰포트에 고정 */
-            width: 70px; /* 원형 도형과 동일한 크기 */
-            height: 70px; /* 원형 도형과 동일한 크기 */
+            position: fixed;
+            width: 70px; 
+            height: 70px; 
             cursor: pointer;
-            z-index: 10; /* 가장 위에 위치 */
-            transition: background-color 0.3s ease, border-radius 0.3s ease;
+            z-index: 10; 
+            transition: background-color 0.3s ease, border-radius 0.3s ease, filter 0.3s ease; /* filter 추가 */
+        }
+        .trigger-shape.active { /* 활성화된 트리거 스타일 */
+            /*filter: drop-shadow(0 0 10px fuchsia) brightness(1.2);*/
+            filter: blur(4px);
         }
 
-        /* 개별 트리거 스타일 */
+
         #circle-trigger {
             top: 25px;
             left: 25px;
             background-color: red;
-            border-radius: 50%; /* 원형 */
+            border-radius: 50%;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -117,9 +116,9 @@
             height: 64px;
             width: 64px;
             top: 120px;
-            left: 28px; /* 원형 도형과 같은 왼쪽 정렬 */
+            left: 28px;
             background-color:rgb(255, 255, 35);
-            border-radius: 0; /* 사각형 */
+            border-radius: 0; 
 
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -136,9 +135,9 @@
             height: 68px;
             width: 68px;
             top: 214px;
-            left: 26px; /* 원형 도형과 같은 왼쪽 정렬 */
+            left: 26px; 
             background-color:rgb(0, 255, 220);
-            border-radius: 20px; /* 라운딩 코너 (원하는 값으로 조절) */
+            border-radius: 20px; 
 
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -151,25 +150,24 @@
             transition: .3s ease-in-out;
         }
 
-        /* 캡처 시각과 다운로드 버튼을 포함할 컨테이너 스타일 */
         .info-and-download-container {
-            display: flex; /* 자식 요소를 가로로 정렬 */
-            justify-content: space-between; /* 양쪽 끝으로 분리 */
-            align-items: center; /* 세로 중앙 정렬 */
-            margin-top: 10px; /* 이미지와 위쪽 여백 */
-            margin-bottom: 5px; /* 아래쪽 여백 */
-            padding: 0 5px; /* 좌우 패딩 */
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-top: 10px; 
+            margin-bottom: 5px;
+            padding: 0 5px; 
         }
 
         .download-button {
-            background-color: #ff0000; /* 빨간색 */
+            background-color: #ff0000;
             color: #F2F0EF;
             border: none;
-            padding: 8px 10px; /* 버튼 패딩 조정 */
+            padding: 8px 10px;
             cursor: pointer;
-            font-size: 0.8em; /* 폰트 크기 조정 */
-            text-decoration: none; /* 링크 밑줄 제거 */
-            white-space: nowrap; /* 텍스트 줄바꿈 방지 */
+            font-size: 0.8em; 
+            text-decoration: none; 
+            white-space: nowrap; 
             margin-bottom: 3px;
             margin-right: -8px;
             transition: .2s ease-in-out;
@@ -180,156 +178,221 @@
             -webkit-transition: .2s ease-in-out;
             transition: .2s ease-in-out;
         }
-
     </style>
 </head>
 <body>
     <h1>Storage</h1>
     <div id="archive-container"></div>
     <div id="no-archives" style="display: none;">Loading...</div>
-    <div id="circle-trigger" class="trigger-shape" onclick=""></div>
-    <div id="square-trigger" class="trigger-shape" onclick=""></div>
-    <div id="rounded-square-trigger" class="trigger-shape" onclick=""></div>
+    <div id="circle-trigger" class="trigger-shape"></div>
+    <div id="square-trigger" class="trigger-shape"></div>
+    <div id="rounded-square-trigger" class="trigger-shape"></div>
+
     <script>
-        let previousArchiveCount = 0; // 이전에 로드된 아카이브 개수를 저장할 변수
+        let previousArchiveCount = 0;
+        let currentFilter = null; // 현재 활성화된 필터 (localStorage 키 이름)
+        const triggers = { // 각 트리거와 연결된 필터 키
+            'circle-trigger': 'memeSnakeArchives',
+            'square-trigger': 'memetetrisarchives',
+            'rounded-square-trigger': 'meme2048Archives'
+        };
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadArchives();
-            // 5초(5000ms)마다 아카이브를 확인하고 필요한 경우 새로고침
-            setInterval(checkAndLoadArchives, 5000); 
+            loadArchives(); // 초기 로드: 모든 아카이브 랜덤 표시
+            setInterval(checkAndLoadArchives, 5000);
+
+            // 트리거 버튼 이벤트 리스너 설정
+            document.getElementById('circle-trigger').onclick = () => handleTriggerClick('memeSnakeArchives', 'circle-trigger');
+            document.getElementById('square-trigger').onclick = () => handleTriggerClick('memetetrisarchives', 'square-trigger');
+            document.getElementById('rounded-square-trigger').onclick = () => handleTriggerClick('meme2048Archives', 'rounded-square-trigger');
         });
 
+        function handleTriggerClick(filterKey, triggerId) {
+            const triggerElement = document.getElementById(triggerId);
+            if (currentFilter === filterKey) { // 이미 해당 필터가 활성화된 경우
+                currentFilter = null; // 필터 해제
+                triggerElement.classList.remove('active');
+                loadArchives(); // 모든 아카이브 랜덤으로 표시
+            } else { // 새로운 필터 적용 또는 필터 변경
+                if (currentFilter) { // 기존에 다른 필터가 활성화되어 있었다면 비활성화
+                    const activeTriggerId = Object.keys(triggers).find(id => triggers[id] === currentFilter);
+                    if (activeTriggerId) {
+                        document.getElementById(activeTriggerId).classList.remove('active');
+                    }
+                }
+                currentFilter = filterKey;
+                triggerElement.classList.add('active');
+                loadArchives(filterKey); // 특정 아카이브 표시
+            }
+        }
+        
+        function updateAllTriggerStyles() {
+            Object.keys(triggers).forEach(triggerId => {
+                const element = document.getElementById(triggerId);
+                if (triggers[triggerId] === currentFilter) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+            });
+        }
+
+
         function checkAndLoadArchives() {
-            // snake game archives와 2048 game archives 모두 확인
             const snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
             const game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
-            const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length;
+            const tetrisArchives = JSON.parse(localStorage.getItem('memetetrisarchives')) || [];
+            
+            const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length + tetrisArchives.length;
 
-            // 현재 아카이브 개수가 이전과 다르면 새로고침
             if (currentTotalArchiveCount !== previousArchiveCount) {
-                loadArchives();
-                previousArchiveCount = currentTotalArchiveCount; // 개수 업데이트
+                loadArchives(currentFilter); // 현재 필터 상태 유지하며 새로고침
+                previousArchiveCount = currentTotalArchiveCount;
             }
         }
 
-        function loadArchives() {
+        function loadArchives(filterType = null) {
             const archiveContainer = document.getElementById('archive-container');
             const noArchivesMessage = document.getElementById('no-archives');
             
-            // 두 종류의 아카이브 데이터를 모두 불러옵니다.
-            let snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
-            let game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            // 각 아카이브 로드 및 sourceKey 추가
+            let snakeData = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+            snakeData = snakeData.map(item => ({ ...item, sourceKey: 'memeSnakeArchives' }));
+
+            let game2048Data = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            game2048Data = game2048Data.map(item => ({ ...item, sourceKey: 'meme2048Archives' }));
             
-            // 두 아카이브를 합치고, 랜덤하게 정렬합니다.
-            let allArchives = [...snakeArchives, ...game2048Archives];
-            // Fisher-Yates shuffle algorithm for random sorting
-            for (let i = allArchives.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [allArchives[i], allArchives[j]] = [allArchives[j], allArchives[i]];
+            let tetrisData = JSON.parse(localStorage.getItem('memetetrisarchives')) || [];
+            tetrisData = tetrisData.map(item => ({ ...item, sourceKey: 'memetetrisarchives' }));
+
+            let archivesToDisplay = [];
+
+            if (filterType) {
+                if (filterType === 'memeSnakeArchives') {
+                    archivesToDisplay = snakeData;
+                } else if (filterType === 'meme2048Archives') {
+                    archivesToDisplay = game2048Data;
+                } else if (filterType === 'memetetrisarchives') {
+                    archivesToDisplay = tetrisData;
+                }
+                // 필터링된 아이템들은 가져온 순서대로 (또는 최신순으로 localStorage에 저장되었다면 그 순서대로) 표시
+                // 랜덤 정렬은 전체 보기 시에만 적용
+            } else { // 필터가 없으면 (currentFilter가 null이면) 모든 아카이브를 합침
+                archivesToDisplay = [...snakeData, ...game2048Data, ...tetrisData];
+                // Fisher-Yates shuffle algorithm for random sorting
+                for (let i = archivesToDisplay.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [archivesToDisplay[i], archivesToDisplay[j]] = [archivesToDisplay[j], archivesToDisplay[i]];
+                }
             }
+            updateAllTriggerStyles(); // 필터 상태에 따라 트리거 스타일 업데이트
 
-            previousArchiveCount = allArchives.length; // 현재 로드된 아카이브 개수를 저장
 
-            if (allArchives.length === 0) {
-                noArchivesMessage.textContent = '아카이브가 없습니다.'; // 메시지 변경
+            // previousArchiveCount는 checkAndLoadArchives에서 전체 개수를 기준으로 관리합니다.
+            // 여기서 previousArchiveCount를 업데이트 하지 않습니다.
+
+            if (archivesToDisplay.length === 0) {
+                noArchivesMessage.textContent = filterType ? '...' : '......';
                 noArchivesMessage.style.display = 'block';
-                archiveContainer.innerHTML = ''; // 아카이브가 없을 때 컨테이너 비우기
+                archiveContainer.innerHTML = '';
                 return;
             } else {
                 noArchivesMessage.style.display = 'none';
             }
 
             archiveContainer.innerHTML = ''; // 기존 내용 지우기
-            allArchives.forEach(item => {
+            archivesToDisplay.forEach(item => {
                 const archiveItemDiv = document.createElement('div');
                 archiveItemDiv.className = 'archive-item';
                 
-                // --- 저장된 배경색을 불러와 적용합니다. (memeSnakeArchives에서 온 경우) ---
                 if (item.backgroundColor) { 
                     archiveItemDiv.style.backgroundColor = item.backgroundColor;
                 } else {
-                    // 2048 게임 스크린샷에는 backgroundColor가 저장되지 않으므로 기본값 black
-                    // 또는 snake archives와 동일한 스타일로 보이게 하고 싶다면 fuchsia나 다른 색상 사용
                     archiveItemDiv.style.backgroundColor = 'black'; 
                 }
-                // ------------------------------------------
 
                 const img = document.createElement('img');
                 img.src = item.imageData;
-                // 이미지 alt 속성 설정 (어떤 게임에서 왔는지 구분)
-                if (item.imageData.includes('2048_screenshot')) { // 2048에서 온 스크린샷임을 가정
+                
+                // alt 속성 설정 (sourceKey 기반으로 명확하게)
+                if (item.sourceKey === 'meme2048Archives') {
                     img.alt = `2048 Game Screenshot at ${item.timestamp}`;
-                } else {
+                } else if (item.sourceKey === 'memetetrisarchives') {
+                    img.alt = `Meme Tetris at ${item.timestamp}`;
+                } else if (item.sourceKey === 'memeSnakeArchives') {
                     img.alt = `Meme Snake at ${item.timestamp}`;
+                } else {
+                     img.alt = `Archived item at ${item.timestamp}`; // fallback
                 }
-
                 archiveItemDiv.appendChild(img);
 
-                // --- 캡처 시각 텍스트와 다운로드 버튼을 담을 컨테이너 생성 ---
                 const infoAndDownloadContainer = document.createElement('div');
                 infoAndDownloadContainer.className = 'info-and-download-container';
 
                 const timestampP = document.createElement('p');
-                const dateTimeString = item.timestamp; // 예: "2023-10-27 14:35:00"
-
-                // 날짜와 시간 문자열을 파싱합니다.
-                // 정규 표현식을 사용하여 YYYY-MM-DD HH:MM:SS 형식을 파싱합니다.
+                const dateTimeString = item.timestamp;
                 const parts = dateTimeString.match(/(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})/);
                 if (parts) {
-                    const datePart = parts[1]; // "YYYY-MM-DD"
-                    let hours = parseInt(parts[2]); // 시간 (0-23)
-                    const minutes = parts[3]; // 분
-
-                    const ampm = hours >= 12 ? '오후' : '오전'; // 오전/오후 결정
-                    hours = hours % 12; // 12시간 형식으로 변경 (0-11)
-                    hours = hours ? hours : 12; // 시간 '0'을 '12'로 변경 (예: 0시 -> 12시 AM)
-                    const displayHours = hours.toString().padStart(2, '0'); // 시간을 두 자리로 표시 (예: '01', '12')
-
-                    const timePartFormatted = `${ampm}${displayHours}:${minutes}`; // 최종 시간 문자열 (예: "오후 02:35")
-                    
+                    const datePart = parts[1];
+                    let hours = parseInt(parts[2]);
+                    const minutes = parts[3];
+                    const ampm = hours >= 12 ? '오후' : '오전';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const displayHours = hours.toString().padStart(2, '0');
+                    const timePartFormatted = `${ampm}${displayHours}:${minutes}`;
+                    timestampP.textContent = `${datePart} ${timePartFormatted}`;
                 } else {
-                    // 파싱 실패 시 원래 타임스탬프 표시 (예외 처리)
                     timestampP.textContent = dateTimeString;
                 }
-
-                // 시간 텍스트를 약간 위로 올리기 위한 스타일 추가
                 timestampP.style.position = 'relative';
                 timestampP.style.marginRight = '-10px';
                 timestampP.style.marginLeft = '-6px';
                 infoAndDownloadContainer.appendChild(timestampP);
-
-
-
-
-                // --------------------------------------------------------               
-                const downloadButton = document.createElement('a'); // <a> 태그 사용
+                
+                const downloadButton = document.createElement('a');
                 downloadButton.className = 'download-button';
                 downloadButton.textContent = 'Download';
-                downloadButton.href = item.imageData; // 이미지 데이터(Base64)를 href로 설정
-                // 다운로드될 파일 이름 설정: 어떤 게임에서 왔는지에 따라 다르게
-                if (item.imageData.includes('2048_screenshot')) { // 2048에서 온 스크린샷임을 가정
+                downloadButton.href = item.imageData;
+                
+                // 다운로드 파일명 설정 (sourceKey 기반으로 명확하게)
+                if (item.sourceKey === 'meme2048Archives') {
                     downloadButton.download = `2048_screenshot_${item.id}.png`; 
-                } else {
+                } else if (item.sourceKey === 'memetetrisarchives') {
+                    downloadButton.download = `meme_tetris_${item.id}.png`;
+                } else if (item.sourceKey === 'memeSnakeArchives') {
                     downloadButton.download = `meme_snake_${item.id}.png`;
+                } else {
+                    downloadButton.download = `archive_${item.id}.png`; // fallback
                 }
-                
                 infoAndDownloadContainer.appendChild(downloadButton);
-                
-                archiveItemDiv.appendChild(infoAndDownloadContainer); // 컨테이너를 archiveItemDiv에 추가
-
-
-
-                // --------------------------------------------------------
+                archiveItemDiv.appendChild(infoAndDownloadContainer);
 
                 const deleteButton = document.createElement('button');
                 deleteButton.className = 'delete-button';
                 deleteButton.textContent = '×';
                 deleteButton.onclick = () => {
-                    // 삭제 시 어떤 localStorage 키에서 삭제해야 하는지 구분
-                    if (item.imageData.includes('2048_screenshot')) {
-                        deleteArchiveItem(item.id, 'meme2048Archives');
+                    // 삭제 시 item.sourceKey를 사용하여 정확한 localStorage 키 지정
+                    // 사용자가 "지금은 이렇게 수정해서 잘 돼"라고 한 부분은
+                    // 이 sourceKey를 사용하거나, imageData.includes() 조건을
+                    // 각 게임별로 고유하게 수정했을 것이라고 가정합니다.
+                    // 여기서는 sourceKey를 사용하는 것이 가장 확실하고 권장되는 방식입니다.
+                    if (item.sourceKey) {
+                        deleteArchiveItem(item.id, item.sourceKey);
                     } else {
-                        deleteArchiveItem(item.id, 'memeSnakeArchives');
+                        // sourceKey가 없는 이전 데이터에 대한 호환성 처리 (기존 로직 유지 또는 개선)
+                        // 이 부분은 사용자의 "잘 되는" 삭제 로직을 따라야 합니다.
+                        // 현재 제공된 코드의 마지막 삭제 로직은 2048과 테트리스 구분에 문제가 있었습니다.
+                        // 여기서는 console.warn을 남기고, 사용자가 이 부분을 확인하도록 합니다.
+                        console.warn('삭제할 아이템의 sourceKey가 없습니다. 기존 삭제 로직을 확인해주세요.', item);
+                        // 기존 로직 (문제가 있을 수 있음, 사용자가 수정한 버전을 여기에 넣어야 함):
+                        // if (item.imageData.includes('data:image/png;base64,')) { // 2048로 가정
+                        //     deleteArchiveItem(item.id, 'meme2048Archives');
+                        // } else if (item.imageData.includes('data:image/png;base64,')) { // Tetris로 가정 (위와 조건 동일)
+                        //     deleteArchiveItem(item.id, 'memetetrisarchives');
+                        // } else { // Snake로 가정
+                        //     deleteArchiveItem(item.id, 'memeSnakeArchives');
+                        // }
                     }
                 };
                 archiveItemDiv.appendChild(deleteButton);
@@ -338,26 +401,15 @@
             });
         }
 
-        // keyName 매개변수를 추가하여 어떤 localStorage 키에서 삭제할지 지정
         function deleteArchiveItem(idToDelete, keyName) {
             let archives = JSON.parse(localStorage.getItem(keyName)) || [];
             archives = archives.filter(item => item.id !== idToDelete);
             localStorage.setItem(keyName, JSON.stringify(archives));
-            loadArchives(); // 삭제 후 목록 새로고침
+            
+            // 삭제 후, 현재 필터 상태를 유지하며 목록 새로고침
+            previousArchiveCount = (JSON.parse(localStorage.getItem('memeSnakeArchives')) || []).length +(JSON.parse(localStorage.getItem('meme2048Archives')) || []).length +(JSON.parse(localStorage.getItem('memetetrisarchives')) || []).length;
+            loadArchives(currentFilter); 
         }
-
-        // 기존 트리거 클릭 핸들러 (내용 변경 없음)
-        document.getElementById('circle-trigger').onclick = function() {
-            // console.log("Circle Trigger Clicked!");
-        };
-        document.getElementById('square-trigger').onclick = function() {
-            // console.log("Square Trigger Clicked!");
-        };
-        document.getElementById('rounded-square-trigger').onclick = function() {
-            // console.log("Rounded Square Trigger Clicked!");
-        };
     </script>
 </body>
 </html>
-
-//지금 2048에서 불러온 스크린샷 삭제 안 먹힘
