@@ -160,6 +160,27 @@
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
+
+        /* 새로 추가된 저장 알림 박스 스타일 */
+        #save-notification {
+            position: fixed;
+            top: 7%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 10px 20px;
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 20px;
+            background-color: #F2F0EF;
+            color: #FF0000;
+            box-shadow: 0px 0px 12px 3px #FF0000;
+            border-radius: 4px;
+            z-index: 1001; /* 오버레이보다 위에 */
+            display: none; /* 초기에는 숨김 */
+            opacity: 0; /* 초기 투명도 0 */
+            transition: opacity 0.5s ease-in-out; /* 투명도 변화 애니메이션 */
+        }
     </style>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.5.1/dist/es-module-shims.js" crossorigin="anonymous"></script>
     <script type="importmap">
@@ -205,6 +226,8 @@
         <button id="capture-result">* 나의 밈 저장하기 *</button>
     </div>
 
+    <div id="save-notification">저장되었습니다!</div>
+
     <script type="module">
         import * as THREE from 'three';
         import { FontLoader } from 'three/addons/loaders/FontLoader.js';
@@ -241,6 +264,7 @@
         const combinationArea = document.getElementById('combination-area');
         const capturedJamoDiv = document.getElementById('captured-jamo');
         const captureResultButton = document.getElementById('capture-result');
+        const saveNotification = document.getElementById('save-notification');
         let draggableJamoElements = [];
         let draggedJamo = null;
         let dragOffsetX, dragOffsetY;
@@ -570,15 +594,19 @@
             draggedJamo = null;
         }
 
-        /* 랜덤 색상을 생성하는 헬퍼 함수 (index.html에도 필요)
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }*/
+
+        // --- 저장 알림 박스를 표시하고 3초 후에 사라지게 하는 함수 추가 ---
+        function showSaveNotification() {
+            saveNotification.style.display = 'block';
+            saveNotification.style.opacity = '1';
+
+            setTimeout(() => {
+                saveNotification.style.opacity = '0';
+                setTimeout(() => {
+                    saveNotification.style.display = 'none';
+                }, 500); // opacity transition 시간과 동일하게 설정
+            }, 3000); // 3초 후에 사라지기 시작
+        }
 
 
         // --- 캡쳐 및 저장 기능 수정 (archives.html 저장 및 버튼 일시 숨김) ---
@@ -606,15 +634,17 @@
                 });
                 localStorage.setItem('memeSnakeArchives', JSON.stringify(archives));
 
-                alert('저장되었습니다!');
-                // 캡처 후 "나의 밈 저장장하기" 버튼을 다시 보이게 함
+                // alert 대신 커스텀 저장 알림 박스 표시
+                showSaveNotification(); 
+
+                // 캡처 후 "나의 밈 저장하기" 버튼을 다시 보이게 함
                 captureResultButton.classList.remove('hidden');
 
                 // 필요하다면 archives.html로 이동 (선택 사항)
                 // window.location.href = 'archives.html';
             }).catch(error => {
                 console.error('캡쳐 중 오류 발생:', error);
-                alert('저장에 실패했습니다.');
+                alert('저장에 실패했습니다.'); // 오류 발생 시에는 alert 유지
                 // 오류 발생 시에도 버튼을 다시 보이게 함
                 captureResultButton.classList.remove('hidden');
             });
