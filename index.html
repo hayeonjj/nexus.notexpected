@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial=" initial-scale="1.0">
-    <title>FEMMEME</title>
+    <title>RE-MEME</title>
     <style>
 
         @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
@@ -12,15 +12,16 @@
             margin: 0;
             overflow: hidden; /* 스크롤바 제거 */
             font-family: "Orbit", sans-serif;
-        font-weight: 400;
-        font-style: normal;
+            font-weight: 400;
+            font-style: normal;
 
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #000; /* 배경색 어둡게 */
-            color: #333; /* 기본 텍스트 색상 (빈 픽셀처럼 보이기 위해) */
+            background-color: black;
+            color: #2a2a2a; /* 기본 텍스트 색상 */
+            cursor: crosshair;
         }
 
         #full-screen-text {
@@ -45,8 +46,8 @@
         }
 
         .highlighted {
-            color: fuchsia !important; /* 호버 시 빨간색으로 변경 */
-            font-weight: bold !important; /* 호버 시 굵게 변경 */
+            color: fuchsia !important; 
+            font-weight: bold !important; 
         }
 
         /* 공통 트리거 스타일 */
@@ -63,7 +64,7 @@
         #circle-trigger {
             top: 25px;
             left: 25px;
-            background-color: red;
+            background-color:rgb(255, 50, 0);
             border-radius: 50%; /* 원형 */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -81,7 +82,7 @@
             width: 64px;
             top: 120px;
             left: 28px; /* 원형 도형과 같은 왼쪽 정렬 */
-            background-color:rgb(255, 255, 35);
+            background-color:rgb(255, 255, 20);
             border-radius: 0; /* 사각형 */
 
             -webkit-transition: .3s ease-in-out;
@@ -100,8 +101,8 @@
             width: 68px;
             top: 214px;
             left: 26px; /* 원형 도형과 같은 왼쪽 정렬 */
-            background-color:rgb(0, 255, 220);
-            border-radius: 20px; /* 라운딩 코너 (원하는 값으로 조절) */
+            background-color:rgb(0, 255, 225);
+            border-radius: 16px; /* 라운딩 코너 (원하는 값으로 조절) */
 
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -159,7 +160,7 @@
         const twoZeroFourEightAsciiContainer = document.getElementById('2048-ascii-container');
 
         // 화면을 채울 반복 텍스트
-        const repeatText = "퐁퐁수진이혜지설거지이기야노칠가이싹싹김치집게손피싸개앙기모띠식폭행쿵쾅쿵쾅카렌김여사계집신조";
+        const repeatText = "퐁퐁수진이혜지설거지이기야노칠가이싹싹김치집게손피싸개앙기모띠식폭행쿵쾅쿵쾅카렌김여사";
         const textLength = repeatText.length;
         const totalChars = 2000; // 대략적인 문자 수 (화면 크기에 따라 조절)
 
