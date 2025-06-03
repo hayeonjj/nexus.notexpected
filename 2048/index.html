@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2048 GAME</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* Google Fonts 임포트 */
         @import url('https://fonts.googleapis.com/css2?family=Gothic+A1&family=Noto+Sans+KR:wght@100..900&display=swap');
@@ -29,9 +30,14 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            background-color: white; /* 자모 지렁이 스타일: 배경색 흰색 */
+            background-color: black; /* 자모 지렁이 스타일: 배경색 흰색 */
             margin: 0;
             padding: 20px;
+            cursor: crosshair;
+        }
+        
+        ::-webkit-scrollbar {
+            display: none;
         }
 
         h1 {
@@ -59,7 +65,7 @@
             font-weight: 700;
             font-style: normal;
             background-color: #FF0000;
-            color: white;
+            color: #F2F0EF;
             padding: 10px 20px;
             border-radius: 5px;
             font-size: 1em;
@@ -88,7 +94,7 @@
             font-style: normal;
             font-size: 20px;
             background-color: #FF0000; /* 자모 지렁이 버튼과 동일한 색상 */
-            color: white; /* 텍스트 흰색 */
+            color: #F2F0EF; 
             border: none;
             border-radius: 4px;
             -webkit-transition: .3s ease-in-out;
@@ -108,10 +114,10 @@
             grid-template-columns: repeat(4, var(--tile-size));
             grid-template-rows: repeat(4, var(--tile-size));
             gap: var(--gap-size);
-            background-color: white;
+            background-color: black;
             padding: var(--gap-size); /* 중요: 패딩 설정 */
             border-radius: 6px;
-            border: 3px solid rgba(255, 0, 0) ;
+            border: 2.5px solid #FF0000;
             position: relative; /* Tiles will be absolute positioned inside this */
             width: calc(var(--tile-size) * 4 + var(--gap-size) * 3); /* 4 tiles + 3 gaps */
             height: calc(var(--tile-size) * 4 + var(--gap-size) * 3);
@@ -121,7 +127,7 @@
         .grid-cell {
             width: var(--tile-size);
             height: var(--tile-size);
-            background-color: rgb(255, 255, 255); /* 빈 셀 배경 */
+            background-color: black; /* 빈 셀 배경 */
             border-radius: 3px;
             box-sizing: border-box;
         }
@@ -130,7 +136,7 @@
             position: absolute; /* 절대 위치 */
             width: var(--tile-size);
             height: var(--tile-size);
-            background-color: #80ff00c0; /* <-- 이 색상은 이제 '한 음절 타일'의 기본 배경색이 됩니다. */
+            background-color: #7FFF00; /* <-- 이 색상은 이제 '한 음절 타일'의 기본 배경색이 됩니다. */
             display: flex;
             flex-direction: column; /* 여러 줄 텍스트를 세로로 정렬 */
             justify-content: center;
@@ -138,7 +144,7 @@
             font-size: 2em;
             font-weight: 700;
             color: #FF0000;
-            border-radius: 3px;
+            border-radius: 16px;
             user-select: none;
             box-sizing: border-box;
             padding: 5px;
@@ -194,64 +200,27 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: white; /* 불투명한 흰색 */
+            background-color: black; /* 불투명한 흰색 */
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 100; /* 최상단에 위치 */
-            font-size: 1.5em;
-            font-weight: 700;
             color: #FF0000; /* 자모 지렁이의 기본 텍스트 색상과 동일 */
             padding: 20px;
             box-sizing: border-box;
             overflow-y: auto; /*내용이 많으면 스크롤 가능하게 */
         }
 
-        .overlay h2 {
-            color: #FF0000;
-            margin-bottom: 20px;
-        }
 
         #word-list-container {
-            width: 80%;
-            max-width: 500px;
-            max-height: 70vh; /* 최대 높이 설정 */
-            overflow-y: auto; /* 스크롤 가능하게 */
-            background-color: white;
+            width: 90vw;
+            height: 100vh;
+            overflow-y:auto; /* 스크롤 가능하게 */
+            background-color: black;
             border-radius: 8px;
-            padding: 20px;
-            /*box-shadow: 0 4px 10px rgba(0,0,0,0.1);*/
-        }
-
-        .word-item {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px dashed #ccc;
-        }
-
-        .word-item:last-child {
-            border-bottom: none;
-            margin-bottom: 0;
-            padding-bottom: 0;
-        }
-
-        .word-item strong {
-            font-size: 1.5em;
-            color: #FF0000;
-            margin-bottom: 5px;
-        }
-
-        .word-item input[type="text"] {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.9em;
-            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
         }
 
         /* overlay 내부 버튼 (닫기 버튼) 스타일도 일관성 있게 맞춤 */
@@ -259,7 +228,7 @@
             margin-top: 20px;
             padding: 12px 25px;
             background-color: #FF0000; /* 자모 지렁이 버튼과 동일한 색상 */
-            color: white; /* 텍스트 흰색 */
+            color: #F2F0EF;; /* 텍스트 흰색 */
             border: none;
             border-radius: 4px;
             font-size: 1em;
@@ -271,26 +240,105 @@
             background-color: #CC0000; /* 자모 지렁이 버튼과 일관성을 위해 약간 어둡게 */
             filter: blur(3px); /* 자모 지렁이 버튼과 동일한 호버 효과 */
         }
+
+        /*재조합 음절 스타일*/
+
+        /* 수집된 단어 재조합 창 내 각 단어 아이템 */
+        .word-recombination-item {
+            display: flex;
+            flex-wrap: wrap; /* 음절 블록이 넘치면 다음 줄로 */
+            justify-content: center; /* 가운데 정렬 */
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+
+        }
+
+        /* 음절 블록을 감싸는 컨테이너 */
+        .syllable-container {
+            display: flex;
+            flex-wrap: wrap; /* 음절 블록이 넘치면 다음 줄로 */
+            gap: 5px; /* 음절 블록 사이 간격 */
+            justify-content: center;
+            padding: 5px 5px;
+        }
+
+        /* 드래그 가능한 각 음절 블록 */
+        .syllable-block {
+            display: inline-flex; /* 텍스트 크기에 맞춰 조절 */
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px; /* 패딩으로 크기 조절 */
+            background-color: #ff99fa; /*음절 타일 배경색*/
+            color: #FF0000; /* 텍스트 색상 */
+            border-radius: 12px; /* 모서리 둥글게 */
+            cursor: move; /* 드래그 가능한 커서 */
+            font-size: 32px; /* 폰트 크기 조절 */
+            user-select: none; /* 텍스트 선택 방지 */
+            transition: background-color 0.2s, border-color 0.2s, transform 0.3s;
+        }
+
+        .syllable-block:hover {
+            transform: translateY(-5px); /* 살짝 위로 */
+        }
+
+        /* 드래그 중일 때 스타일 
+        .syllable-block.dragging {
+            opacity: 0.7;
+            cursor: move;
+            transform: scale(1.05);
+        }*/
+
+
+
+        /*캡쳐버튼*/
+        #capture-result {
+            position: absolute; /* '글자 조합' 버튼과 동일한 위치 */
+            right: 20px;
+            bottom: 20px;
+            padding: 15px 30px;
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
+            font-style: normal;
+            font-size: 20px;
+            background-color: #FF0000; /* '글자 조합' 버튼과 동일한 색상 */
+            color: #F2F0EF;
+            border: none;
+            border-radius: 4px;
+            margin-top: 20px; /* 기존 margin 제거 */
+            -webkit-transition: .3s ease-in-out;
+            cursor: pointer;
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+        #capture-result:hover {
+            filter:blur(3px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        .hidden {
+            display: none !important; /* !important를 사용하여 다른 스타일에 의해 덮어쓰이는 것을 방지할 수 있습니다. */
+        }
     </style>
 </head>
 <body>
-    <h1>*방향키를 눌러 시작하세요*</h1>
+    <h1>* 방향키를 눌러 시작하기 *</h1>
 
     <div class="game-info">
         <button id="reset-button">다시 시작</button>
     </div>
 
     <div id="game-board">
-        </div>
+    </div>
 
-    <button id="review-words-button" style="display: none;">단어 확인</button>
+    <button id="review-words-button" style="display: none;">* 밈 재조합하기 *</button>
 
     <div id="word-review-overlay" class="overlay" style="display: none;">
-        <h2>수집된 단어</h2>
-        <div id="word-list-container">
-            </div>
-        <button id="close-review-button">닫기</button>
-    </div>
+        <h2></h2>
+        <div id="word-list-container"></div>
+        <button id="capture-result">* 나의 밈 저장하기 *</button>
+        </div>
 
     <script>
         // 게임 상수 설정
@@ -301,18 +349,18 @@
         const boardSize = 4; // 4x4 보드
         const ANIMATION_DURATION = 100; // ms (CSS transition-duration과 일치해야 함)
         const TILE_SIZE = 100; // px
-        const GAP_SIZE = 10;   // px
+        const GAP_SIZE = 10;  // px
         const MIN_SYLLABLES_FOR_REVIEW = 3; // 단어 확인 대상 최소 음절 수
         const MIN_MERGED_TILES_FOR_BUTTON = 3; // '단어 확인' 버튼 활성화 최소 합쳐진 타일 수
 
         // 전역 게임 상태 변수
-        let board = [];              // 게임 보드 데이터 (값과 ID를 포함하는 객체 또는 null)
+        let board = [];             // 게임 보드 데이터 (값과 ID를 포함하는 객체 또는 null)
         let tileElementsMap = new Map(); // 타일 ID와 해당 DOM 요소(HTMLElement)를 매핑
-        let nextTileId = 0;          // 새로 생성될 타일의 고유 ID
+        let nextTileId = 0;           // 새로 생성될 타일의 고유 ID
 
         let twoPlusSyllableTileCount = 0; // 보드에 있는 3음절 이상 합쳐진 타일의 개수
         // 현재 단어 확인 세션에서 수집된 단어 목록
-        let collectedWordsForReview = []; // { id: number, word: string, meaning: string | null }
+        let collectedWordsForReview = []; // { id: number, word: string }
         let nextReviewWordId = 0; // collectedWordsForReview의 각 단어에 대한 고유 ID
 
         let isAnimating = false; // 애니메이션 중에는 사용자 입력 방지
@@ -323,7 +371,18 @@
         const reviewWordsButton = document.getElementById('review-words-button');
         const wordReviewOverlay = document.getElementById('word-review-overlay');
         const wordListContainer = document.getElementById('word-list-container');
-        const closeReviewButton = document.getElementById('close-review-button');
+        const captureResultButton = document.getElementById('capture-result');
+        
+
+        // 드래그 앤 드롭 관련 전역 변수
+        let draggedSyllable = null;
+        let originalParent = null;
+
+        //캡처 버튼 클릭 이벤트 리스너 추가
+        captureResultButton.addEventListener('click', () => {
+            captureAndSaveResult();
+        });
+
 
         // --- 유틸리티 함수 ---
 
@@ -587,7 +646,7 @@
                             // collectedWordsForReview에 추가 (중복 방지)
                             const isNewWord = !collectedWordsForReview.some(item => item.word === instr.value);
                             if (isNewWord) {
-                                collectedWordsForReview.push({ id: nextReviewWordId++, word: instr.value, meaning: null });
+                                // collectedWordsForReview.push({ id: nextReviewWordId++, word: instr.value }); // 이 부분은 showReviewOverlay에서만 관리
                             }
                         } else {
                             tileElement.removeAttribute('data-is-long-merge'); // 3음절 미만이 되면 속성 제거
@@ -655,7 +714,7 @@
                     ({ newLine: newLineResult, mergeInfo: mergeResult } = slide(lineToSlide));
                     
                     if (direction === 'right') {
-                         newLineResult.reverse();
+                            newLineResult.reverse();
                     }
                     for (let j = 0; j < boardSize; j++) {
                         tempBoard[i][j] = newLineResult[j];
@@ -786,7 +845,7 @@
          * 보드에 현재 존재하는 3음절 이상 합쳐진 타일의 개수를 재계산합니다.
          */
         function recalculateTwoPlusSyllableTileCount() { // 함수명 변경
-            twoPlusSyllableTileCount = 0; 
+            twoPlusSyllableTileCount = 0;  
             for (let r = 0; r < boardSize; r++) {
                 for (let c = 0; c < boardSize; c++) {
                     const tile = board[r][c];
@@ -794,7 +853,7 @@
                         // 타일의 음절 길이가 2 이상이면 카운트를 증가시킵니다.
                         // data-is-long-merge 속성 여부는 '단어 확인' 버튼 활성화 조건에 영향을 주지 않습니다.
                         // 이 부분을 아래와 같이 `tile.value.length >= 2`로 변경합니다.
-                        if (tile.value.length >= 2) { 
+                        if (tile.value.length >= 2) {  // 2음절 이상인 경우 카운트
                             twoPlusSyllableTileCount++;
                         }
                     }
@@ -803,28 +862,10 @@
         }
 
         /**
-         * 두 보드가 동일한지 비교합니다. (애니메이션 후 변화 여부 확인용)
-         * @param {Array<Array<object|null>>} board1
-         * @param {Array<Array<object|null>>} board2
-         * @returns {boolean} 동일하면 true, 다르면 false
-         */
-        function areBoardsEqual(board1, board2) {
-            for (let r = 0; r < boardSize; r++) {
-                for (let c = 0; c < boardSize; c++) {
-                    const tile1 = board1[r][c];
-                    const tile2 = board2[r][c];
-                    if (tile1 === null && tile2 === null) continue;
-                    if (tile1 === null || tile2 === null) return false;
-                    if (tile1.value !== tile2.value || tile1.id !== tile2.id) return false;
-                }
-            }
-            return true;
-        }
-
-        /**
          * '단어 확인' 버튼의 표시 여부를 업데이트합니다.
          */
         function updateReviewButtonVisibility() {
+            // 이 함수는 MIN_MERGED_TILES_FOR_BUTTON 상수에 따라 버튼 표시 여부를 결정하므로 변경 없음.
             if (twoPlusSyllableTileCount >= MIN_MERGED_TILES_FOR_BUTTON) {
                 reviewWordsButton.style.display = 'block';
             } else {
@@ -837,24 +878,40 @@
          */
         function showReviewOverlay() {
             wordListContainer.innerHTML = ''; // 기존 목록 초기화
+            collectedWordsForReview = []; // 매번 새롭게 수집
+
+            // 현재 보드에 있는 타일 중 2음절 이상인 타일의 텍스트만 수집하도록 조건 변경
+            tileElementsMap.forEach(tileEl => {
+                const word = tileEl.getAttribute('data-value');
+                if (word && word.length >= 2) { // **여기서 2음절 이상으로 조건 변경**
+                    collectedWordsForReview.push({ id: nextReviewWordId++, word: word });
+                }
+            });
+
 
             if (collectedWordsForReview.length === 0) {
-                wordListContainer.innerHTML = '<p>수집된 단어가 없습니다.</p>';
+                wordListContainer.innerHTML = '<p>재조합할 단어가 없습니다.</p>';
             } else {
                 collectedWordsForReview.forEach(wordObj => {
                     const wordItem = document.createElement('div');
-                    wordItem.classList.add('word-item');
-                    wordItem.innerHTML = `
-                        <strong>${wordObj.word}</strong>
-                        <input type="text" data-word-id="${wordObj.id}" placeholder="뜻 입력" value="${wordObj.meaning || ''}">
-                    `;
-                    wordListContainer.appendChild(wordItem);
+                    wordItem.classList.add('word-recombination-item');
+                    wordItem.setAttribute('data-word-id', wordObj.id);
 
-                    // 입력 필드에 입력된 값을 collectedWordsForReview에 반영
-                    const inputField = wordItem.querySelector(`input[data-word-id="${wordObj.id}"]`);
-                    inputField.addEventListener('input', (e) => {
-                        wordObj.meaning = e.target.value;
+                    const syllables = wordObj.word.split(''); // 단어를 음절로 분리
+
+                    const syllableContainer = document.createElement('div');
+                    syllableContainer.classList.add('syllable-container');
+
+                    syllables.forEach(syl => {
+                        const syllableBlock = document.createElement('span');
+                        syllableBlock.classList.add('syllable-block');
+                        syllableBlock.textContent = syl;
+                        syllableBlock.setAttribute('draggable', 'true'); // 드래그 가능하게 설정
+                        syllableContainer.appendChild(syllableBlock);
                     });
+
+                    wordItem.appendChild(syllableContainer);
+                    wordListContainer.appendChild(wordItem);
                 });
             }
             wordReviewOverlay.style.display = 'flex';
@@ -862,26 +919,24 @@
 
         /**
          * 수집된 단어 오버레이를 숨기고, 수집된 단어 목록 및 관련 상태를 초기화합니다.
+         * (기존과 동일)
          */
         function closeReviewOverlay() {
             wordReviewOverlay.style.display = 'none';
-            // 수집된 단어 목록 초기화
-            collectedWordsForReview = [];
-            nextReviewWordId = 0;
-
-            // 보드에 있는 모든 타일의 data-is-long-merge 속성 제거
+            
             tileElementsMap.forEach(tileEl => {
                 tileEl.removeAttribute('data-is-long-merge');
             });
-            twoPlusSyllableTileCount = 0; // 카운트 초기화
-            updateReviewButtonVisibility(); // 버튼 다시 숨김
+            twoPlusSyllableTileCount = 0; 
+            updateReviewButtonVisibility(); 
         }
 
         // --- 이벤트 리스너 ---
 
         // 키보드 입력 처리
         document.addEventListener('keydown', async (e) => {
-            if (isAnimating || wordReviewOverlay.style.display === 'flex') return; // 애니메이션 중이거나 오버레이가 열려있으면 입력 무시
+            // 오버레이가 열려있을 때에도 방향키 입력이 게임에 영향을 주지 않도록 수정
+            if (isAnimating) return; 
 
             switch (e.key) {
                 case 'ArrowLeft':
@@ -908,11 +963,109 @@
         // '단어 확인' 버튼 클릭 처리
         reviewWordsButton.addEventListener('click', showReviewOverlay);
 
-        // 오버레이 '닫기' 버튼 클릭 처리
-        closeReviewButton.addEventListener('click', closeReviewOverlay);
+        // 오버레이 '닫기' 버튼 클릭 처리 (삭제됨)
+        // closeReviewButton.addEventListener('click', closeReviewOverlay);
+
+        // 드래그 앤 드롭 이벤트 리스너 (오버레이 내의 음절 블록에 적용)
+        wordListContainer.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('syllable-block')) {
+                draggedSyllable = e.target;
+                originalParent = e.target.parentNode;
+                e.dataTransfer.effectAllowed = 'move';
+                // 드래그 중인 요소에 클래스 추가 (스타일링용)
+                setTimeout(() => {
+                    e.target.classList.add('dragging');
+                }, 0);
+            }
+        });
+
+        wordListContainer.addEventListener('dragover', (e) => {
+            e.preventDefault(); // 기본 동작 방지 (drop을 허용하기 위함)
+            if (e.target.classList.contains('syllable-block') || e.target.classList.contains('syllable-container')) {
+                e.dataTransfer.dropEffect = 'move';
+                let targetElement = e.target;
+                if (!targetElement.classList.contains('syllable-block')) {
+                    // syllable-container 위에 드롭할 때를 처리
+                    return; 
+                }
+
+                const container = targetElement.parentNode;
+                const bounding = targetElement.getBoundingClientRect();
+                const offset = bounding.x + (bounding.width / 2);
+
+                if (e.clientX < offset) {
+                    // 타겟 요소의 앞
+                    container.insertBefore(draggedSyllable, targetElement);
+                } else {
+                    // 타겟 요소의 뒤
+                    container.insertBefore(draggedSyllable, targetElement.nextSibling);
+                }
+            }
+        });
+
+        wordListContainer.addEventListener('dragleave', (e) => {
+            // 필요시 dragleave 처리 (현재는 특별히 할 일 없음)
+        });
+
+        wordListContainer.addEventListener('drop', (e) => {
+            e.preventDefault(); // 기본 동작 방지
+            if (draggedSyllable) {
+                // draggedSyllable이 drop 대상 요소의 부모에 이미 올바르게 삽입되었으므로 추가적인 insertAdjacentElement는 필요 없음.
+                // 드롭 완료 후 필요한 정리 작업 수행
+            }
+        });
+
+        wordListContainer.addEventListener('dragend', (e) => {
+            if (draggedSyllable) {
+                draggedSyllable.classList.remove('dragging');
+                draggedSyllable = null;
+                originalParent = null;
+            }
+        });
 
         // 페이지 로드 시 게임 시작
         document.addEventListener('DOMContentLoaded', startGame);
+
+        // --- 캡쳐 및 저장 기능 수정 (archives.html 저장 및 버튼 일시 숨김) ---
+        async function captureAndSaveResult() {
+            // 캡처 전에 "나의 밈 저장하기" 버튼을 일시적으로 숨김
+            captureResultButton.classList.add('hidden');
+
+            // 캡처할 요소는 전체 body
+            const elementToCapture = document.body;
+
+            // html2canvas를 사용하여 캡쳐
+            html2canvas(elementToCapture, {
+                backgroundColor: 'black', // 배경색을 검정색으로 지정
+            }).then(canvas => {
+                const imageData = canvas.toDataURL('image/png'); // Base64 인코딩된 이미지 데이터
+                //const capturedBackgroundColor = getRandomColor(); // 캡처 시점에 랜덤 색상 생성
+                
+                // localStorage에 저장
+                let archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+                archives.unshift({ // 최신 이미지가 가장 위에 오도록 unshift 사용
+                    id: Date.now(), // 고유 ID (타임스탬프)
+                    timestamp: new Date().toLocaleString(), // 캡쳐 시간
+                    imageData: imageData,
+                    //backgroundColor: capturedBackgroundColor // 생성된 랜덤 배경색 저장
+                });
+                localStorage.setItem('meme2048Archives', JSON.stringify(archives));
+
+                alert('저장되었습니다!');
+                // 캡처 후 "나의 밈 저장하기" 버튼을 다시 보이게 함
+                captureResultButton.classList.remove('hidden');
+
+                // 필요하다면 archives.html로 이동 (선택 사항)
+                // window.location.href = 'archives.html';
+            }).catch(error => {
+                console.error('캡쳐 중 오류 발생:', error);
+                alert('저장에 실패했습니다.');
+                // 오류 발생 시에도 버튼을 다시 보이게 함
+                captureResultButton.classList.remove('hidden');
+            });
+        }
+        // ----------------------------------------------------------------------
+
     </script>
 </body>
 </html>
