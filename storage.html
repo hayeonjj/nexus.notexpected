@@ -99,7 +99,7 @@
         #circle-trigger {
             top: 25px;
             left: 25px;
-            background-color: red;
+            background-color:rgb(255, 50, 0);
             border-radius: 50%;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -117,7 +117,7 @@
             width: 64px;
             top: 120px;
             left: 28px;
-            background-color:rgb(255, 255, 35);
+            background-color:rgb(255, 255, 20);
             border-radius: 0; 
 
             -webkit-transition: .3s ease-in-out;
@@ -136,8 +136,8 @@
             width: 68px;
             top: 214px;
             left: 26px; 
-            background-color:rgb(0, 255, 220);
-            border-radius: 20px; 
+            background-color:rgb(0, 255, 255);
+            border-radius: 16px; 
 
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -183,7 +183,7 @@
 <body>
     <h1>Storage</h1>
     <div id="archive-container"></div>
-    <div id="no-archives" style="display: none;">Loading...</div>
+    <div id="no-archives" style="display: none;"></div>
     <div id="circle-trigger" class="trigger-shape"></div>
     <div id="square-trigger" class="trigger-shape"></div>
     <div id="rounded-square-trigger" class="trigger-shape"></div>
@@ -292,7 +292,7 @@
             // 여기서 previousArchiveCount를 업데이트 하지 않습니다.
 
             if (archivesToDisplay.length === 0) {
-                noArchivesMessage.textContent = filterType ? '...' : '......';
+                noArchivesMessage.textContent = filterType ? 'Play!' : 'Play!!!';
                 noArchivesMessage.style.display = 'block';
                 archiveContainer.innerHTML = '';
                 return;
