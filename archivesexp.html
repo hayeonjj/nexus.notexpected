@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>STORAGE</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+        body {
+            font-family: "Orbit", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            margin: 20px;
+            background-color: black;
+            color: #F2F0EF;
+            text-align: center;
+            user-select:none;
+            cursor: crosshair;
+        }
+        h1 {
+            color: fuchsia;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        #archive-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+        }
+        .archive-item {
+            border: 2px solid fuchsia;
+            padding: 5px 15px;
+            width: 330px; /* 각 캡쳐 이미지 컨테이너의 너비 조정 */
+            height:fit-content;
+            text-align: left;
+            position: relative; /* 삭제 버튼 위치 조정을 위해 추가 */
+            box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+        }
+        .archive-item img {
+            max-width: 100%;
+            height: auto;
+            display: block; /* 이미지 하단 여백 제거 */
+            margin-bottom: 10px;
+        }
+        .archive-item p {
+            font-size: 0.9em;
+            color: #F2F0EF;
+            margin: 0; /* 기본 마진 제거 */
+        }
+        .delete-button {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #FF0000;
+            color: #F2F0EF;
+            border: none;
+            border-radius: 50%;
+            padding: 3px 10px;
+            cursor: pointer;
+            font-size: 1.5em;
+            transition: .2s ease-in-out;
+        }
+        .delete-button:hover {
+            background-color: #8c0000;
+            -webkit-transition: .2s ease-in-out;
+            transition: .2s ease-in-out;
+        }
+        
+        body::-webkit-scrollbar {
+            width: 20px;
+            height: 50px;
+        }
+
+        body::-webkit-scrollbar-thumb:vertical {
+            background:fuchsia
+        }
+        
+        #no-archives {
+            color: #F2F0EF;
+            font-size: 1.2em;
+            margin-top: 50px;
+        }
+
+        .trigger-shape {
+            position: fixed;
+            width: 70px;
+            height: 70px;
+            cursor: pointer;
+            z-index: 10;
+            transition: background-color 0.3s ease, border-radius 0.3s ease, filter 0.3s ease; /* filter 추가 */
+        }
+        .trigger-shape.active { /* 활성화된 트리거 스타일 */
+            /*filter: drop-shadow(0 0 10px fuchsia) brightness(1.2);*/
+            filter: blur(4px);
+        }
+
+
+        #circle-trigger {
+            top: 25px;
+            left: 25px;
+            background-color:rgb(255, 50, 0);
+            border-radius: 50%;
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #circle-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger {
+            height: 64px;
+            width: 64px;
+            top: 120px;
+            left: 28px;
+            background-color:rgb(255, 255, 20);
+            border-radius: 0;
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger {
+            height: 68px;
+            width: 68px;
+            top: 214px;
+            left: 26px;
+            background-color:rgb(0, 255, 255);
+            border-radius: 16px;
+
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        #rounded-square-trigger:hover {
+            background-color: fuchsia;
+            filter:blur(4px);
+            -webkit-transition: .3s ease-in-out;
+            transition: .3s ease-in-out;
+        }
+
+        .info-and-download-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 5px;
+            padding: 0 5px;
+        }
+
+        .download-button {
+            background-color: #ff0000;
+            color: #F2F0EF;
+            border: none;
+            padding: 8px 10px;
+            cursor: pointer;
+            font-size: 0.8em;
+            text-decoration: none;
+            white-space: nowrap;
+            margin-bottom: 3px;
+            margin-right: -8px;
+            transition: .2s ease-in-out;
+        }
+
+        .download-button:hover {
+            background-color: #8C0000;
+            -webkit-transition: .2s ease-in-out;
+            transition: .2s ease-in-out;
+        }
+
+        /* ===== 댓글 기능 추가를 위한 CSS ===== */
+        .comment-container {
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid fuchsia;
+        }
+        .comment-list {
+            margin-bottom: 10px;
+            max-height: 100px;
+            overflow-y: auto;
+            padding-right: 5px; /* 스크롤바 공간 확보 */
+        }
+        .comment-list p {
+            font-size: 0.8em;
+            margin-bottom: 5px;
+            word-break: break-all; /* 긴 단어 줄바꿈 */
+        }
+        .comment-form {
+            display: flex;
+            gap: 5px;
+        }
+        .comment-form input {
+            flex-grow: 1;
+            background-color: #333;
+            border: 1px solid fuchsia;
+            color: #F2F0EF;
+            padding: 5px;
+            font-family: "Orbit", sans-serif;
+        }
+        .comment-form input:focus {
+            outline: none;
+            border-color: #FF00FF;
+            box-shadow: 0 0 5px #FF00FF;
+        }
+        .comment-form button {
+            background-color: fuchsia;
+            border: none;
+            color: black;
+            padding: 5px 10px;
+            cursor: pointer;
+            font-family: "Orbit", sans-serif;
+            transition: .2s ease-in-out;
+        }
+        .comment-form button:hover {
+            background-color: #a000a0;
+        }
+        /* 댓글 영역 스크롤바 스타일 */
+        .comment-list::-webkit-scrollbar {
+            width: 10px;
+        }
+        .comment-list::-webkit-scrollbar-thumb {
+            background: fuchsia;
+        }
+        .comment-list::-webkit-scrollbar-track {
+            background: #222;
+        }
+        /* ===== CSS 추가 끝 ===== */
+    </style>
+</head>
+<body>
+    <h1>Storage</h1>
+    <div id="archive-container"></div>
+    <div id="no-archives" style="display: none;"></div>
+    <div id="circle-trigger" class="trigger-shape"></div>
+    <div id="square-trigger" class="trigger-shape"></div>
+    <div id="rounded-square-trigger" class="trigger-shape"></div>
+
+    <script>
+        let previousArchiveCount = 0;
+        let currentFilter = null; // 현재 활성화된 필터 (localStorage 키 이름)
+        const triggers = { // 각 트리거와 연결된 필터 키
+            'circle-trigger': 'memeSnakeArchives',
+            'square-trigger': 'memetetrisarchives',
+            'rounded-square-trigger': 'meme2048Archives'
+        };
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadArchives(); // 초기 로드: 모든 아카이브 랜덤 표시
+            setInterval(checkAndLoadArchives, 5000);
+
+            // 트리거 버튼 이벤트 리스너 설정
+            document.getElementById('circle-trigger').onclick = () => handleTriggerClick('memeSnakeArchives', 'circle-trigger');
+            document.getElementById('square-trigger').onclick = () => handleTriggerClick('memetetrisarchives', 'square-trigger');
+            document.getElementById('rounded-square-trigger').onclick = () => handleTriggerClick('meme2048Archives', 'rounded-square-trigger');
+        });
+
+        function handleTriggerClick(filterKey, triggerId) {
+            const triggerElement = document.getElementById(triggerId);
+            if (currentFilter === filterKey) { // 이미 해당 필터가 활성화된 경우
+                currentFilter = null; // 필터 해제
+                triggerElement.classList.remove('active');
+                loadArchives(); // 모든 아카이브 랜덤으로 표시
+            } else { // 새로운 필터 적용 또는 필터 변경
+                if (currentFilter) { // 기존에 다른 필터가 활성화되어 있었다면 비활성화
+                    const activeTriggerId = Object.keys(triggers).find(id => triggers[id] === currentFilter);
+                    if (activeTriggerId) {
+                        document.getElementById(activeTriggerId).classList.remove('active');
+                    }
+                }
+                currentFilter = filterKey;
+                triggerElement.classList.add('active');
+                loadArchives(filterKey); // 특정 아카이브 표시
+            }
+        }
+        
+        function updateAllTriggerStyles() {
+            Object.keys(triggers).forEach(triggerId => {
+                const element = document.getElementById(triggerId);
+                if (triggers[triggerId] === currentFilter) {
+                    element.classList.add('active');
+                } else {
+                    element.classList.remove('active');
+                }
+            });
+        }
+
+
+        function checkAndLoadArchives() {
+            const snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+            const game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            const tetrisArchives = JSON.parse(localStorage.getItem('memetetrisarchives')) || [];
+            
+            const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length + tetrisArchives.length;
+
+            if (currentTotalArchiveCount !== previousArchiveCount) {
+                loadArchives(currentFilter); // 현재 필터 상태 유지하며 새로고침
+                previousArchiveCount = currentTotalArchiveCount;
+            }
+        }
+
+        function loadArchives(filterType = null) {
+            const archiveContainer = document.getElementById('archive-container');
+            const noArchivesMessage = document.getElementById('no-archives');
+            
+            // 각 아카이브 로드 및 sourceKey 추가
+            let snakeData = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
+            snakeData = snakeData.map(item => ({ ...item, sourceKey: 'memeSnakeArchives' }));
+
+            let game2048Data = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
+            game2048Data = game2048Data.map(item => ({ ...item, sourceKey: 'meme2048Archives' }));
+            
+            let tetrisData = JSON.parse(localStorage.getItem('memetetrisarchives')) || [];
+            tetrisData = tetrisData.map(item => ({ ...item, sourceKey: 'memetetrisarchives' }));
+
+            let archivesToDisplay = [];
+
+            if (filterType) {
+                if (filterType === 'memeSnakeArchives') {
+                    archivesToDisplay = snakeData;
+                } else if (filterType === 'meme2048Archives') {
+                    archivesToDisplay = game2048Data;
+                } else if (filterType === 'memetetrisarchives') {
+                    archivesToDisplay = tetrisData;
+                }
+            } else { // 필터가 없으면 (currentFilter가 null이면) 모든 아카이브를 합침
+                archivesToDisplay = [...snakeData, ...game2048Data, ...tetrisData];
+                // Fisher-Yates shuffle algorithm for random sorting
+                for (let i = archivesToDisplay.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [archivesToDisplay[i], archivesToDisplay[j]] = [archivesToDisplay[j], archivesToDisplay[i]];
+                }
+            }
+            updateAllTriggerStyles(); // 필터 상태에 따라 트리거 스타일 업데이트
+
+            if (archivesToDisplay.length === 0) {
+                noArchivesMessage.textContent = filterType ? 'Play!' : 'Play!!!';
+                noArchivesMessage.style.display = 'block';
+                archiveContainer.innerHTML = '';
+                return;
+            } else {
+                noArchivesMessage.style.display = 'none';
+            }
+
+            archiveContainer.innerHTML = ''; // 기존 내용 지우기
+            archivesToDisplay.forEach(item => {
+                const archiveItemDiv = document.createElement('div');
+                archiveItemDiv.className = 'archive-item';
+                
+                if (item.backgroundColor) {
+                    archiveItemDiv.style.backgroundColor = item.backgroundColor;
+                } else {
+                    archiveItemDiv.style.backgroundColor = 'black';
+                }
+
+                const img = document.createElement('img');
+                img.src = item.imageData;
+                
+                if (item.sourceKey === 'meme2048Archives') {
+                    img.alt = `2048 Game Screenshot at ${item.timestamp}`;
+                } else if (item.sourceKey === 'memetetrisarchives') {
+                    img.alt = `Meme Tetris at ${item.timestamp}`;
+                } else if (item.sourceKey === 'memeSnakeArchives') {
+                    img.alt = `Meme Snake at ${item.timestamp}`;
+                } else {
+                     img.alt = `Archived item at ${item.timestamp}`; // fallback
+                }
+                archiveItemDiv.appendChild(img);
+
+                const infoAndDownloadContainer = document.createElement('div');
+                infoAndDownloadContainer.className = 'info-and-download-container';
+
+                const timestampP = document.createElement('p');
+                const dateTimeString = item.timestamp;
+                const parts = dateTimeString.match(/(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+                if (parts) {
+                    const datePart = parts[1];
+                    let hours = parseInt(parts[2]);
+                    const minutes = parts[3];
+                    const ampm = hours >= 12 ? '오후' : '오전';
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    const displayHours = hours.toString().padStart(2, '0');
+                    const timePartFormatted = `${ampm}${displayHours}:${minutes}`;
+                    timestampP.textContent = `${datePart} ${timePartFormatted}`;
+                } else {
+                    timestampP.textContent = dateTimeString;
+                }
+                timestampP.style.position = 'relative';
+                timestampP.style.marginRight = '-10px';
+                timestampP.style.marginLeft = '-6px';
+                infoAndDownloadContainer.appendChild(timestampP);
+                
+                const downloadButton = document.createElement('a');
+                downloadButton.className = 'download-button';
+                downloadButton.textContent = 'Download';
+                downloadButton.href = item.imageData;
+                
+                if (item.sourceKey === 'meme2048Archives') {
+                    downloadButton.download = `2048_screenshot_${item.id}.png`;
+                } else if (item.sourceKey === 'memetetrisarchives') {
+                    downloadButton.download = `meme_tetris_${item.id}.png`;
+                } else if (item.sourceKey === 'memeSnakeArchives') {
+                    downloadButton.download = `meme_snake_${item.id}.png`;
+                } else {
+                    downloadButton.download = `archive_${item.id}.png`; // fallback
+                }
+                infoAndDownloadContainer.appendChild(downloadButton);
+                archiveItemDiv.appendChild(infoAndDownloadContainer);
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-button';
+                deleteButton.textContent = '×';
+                deleteButton.onclick = () => {
+                    if (item.sourceKey) {
+                        deleteArchiveItem(item.id, item.sourceKey);
+                    } else {
+                        console.warn('삭제할 아이템의 sourceKey가 없습니다. 기존 삭제 로직을 확인해주세요.', item);
+                    }
+                };
+                archiveItemDiv.appendChild(deleteButton);
+                
+                // ===== 댓글 기능 HTML 요소 추가 시작 =====
+                const commentContainer = document.createElement('div');
+                commentContainer.className = 'comment-container';
+
+                const commentList = document.createElement('div');
+                commentList.className = 'comment-list';
+                // 저장된 댓글 불러오기
+                if (item.comments && item.comments.length > 0) {
+                    item.comments.forEach(comment => {
+                        const commentP = document.createElement('p');
+                        commentP.textContent = comment;
+                        commentList.appendChild(commentP);
+                    });
+                }
+
+                const commentForm = document.createElement('form');
+                commentForm.className = 'comment-form';
+                commentForm.onsubmit = (e) => {
+                    e.preventDefault();
+                    const commentInput = e.target.elements.comment;
+                    const commentText = commentInput.value.trim();
+                    if (commentText) {
+                        addComment(item.id, item.sourceKey, commentText);
+                        commentInput.value = '';
+                    }
+                };
+
+                const commentInput = document.createElement('input');
+                commentInput.type = 'text';
+                commentInput.name = 'comment';
+                commentInput.placeholder = 'Add a comment...';
+                commentInput.autocomplete = 'off';
+
+                const commentButton = document.createElement('button');
+                commentButton.type = 'submit';
+                commentButton.textContent = 'Post';
+
+                commentForm.appendChild(commentInput);
+                commentForm.appendChild(commentButton);
+
+                commentContainer.appendChild(commentList);
+                commentContainer.appendChild(commentForm);
+
+                archiveItemDiv.appendChild(commentContainer);
+                // ===== 댓글 기능 HTML 요소 추가 끝 =====
+
+                archiveContainer.appendChild(archiveItemDiv);
+            });
+        }
+
+        // ===== 댓글 추가 함수 =====
+        function addComment(itemId, keyName, commentText) {
+            let archives = JSON.parse(localStorage.getItem(keyName)) || [];
+            const itemIndex = archives.findIndex(item => item.id === itemId);
+
+            if (itemIndex > -1) {
+                // 댓글 배열이 없으면 새로 생성
+                if (!archives[itemIndex].comments) {
+                    archives[itemIndex].comments = [];
+                }
+                archives[itemIndex].comments.push(commentText);
+                localStorage.setItem(keyName, JSON.stringify(archives));
+                loadArchives(currentFilter); // 댓글 추가 후 목록 새로고침
+            }
+        }
+
+        function deleteArchiveItem(idToDelete, keyName) {
+            let archives = JSON.parse(localStorage.getItem(keyName)) || [];
+            archives = archives.filter(item => item.id !== idToDelete);
+            localStorage.setItem(keyName, JSON.stringify(archives));
+            
+            previousArchiveCount = (JSON.parse(localStorage.getItem('memeSnakeArchives')) || []).length +(JSON.parse(localStorage.getItem('meme2048Archives')) || []).length +(JSON.parse(localStorage.getItem('memetetrisarchives')) || []).length;
+            loadArchives(currentFilter);
+        }
+    </script>
+</body>
+</html>
