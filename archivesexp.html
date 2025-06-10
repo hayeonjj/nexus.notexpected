@@ -14,13 +14,21 @@
             background-color: black;
             color: #F2F0EF;
             text-align: center;
-            user-select:none;
             cursor: crosshair;
+            user-select: text;
         }
+        ::selection {  
+            color: #F2F0EF;
+            background-color: #ff99fa;
+        }
+
+
+
         h1 {
             color: fuchsia;
             margin-bottom: 30px;
             font-size: 36px;
+            user-select:none;            
         }
         #archive-container {
             display: flex;
@@ -50,21 +58,23 @@
         }
         .delete-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #FF0000;
-            color: #F2F0EF;
-            border: none;
+            top: 12px;
+            right: 11px;
+            color: fuchsia;
+            background-color: black;
+            border: 2px solid fuchsia;
             border-radius: 50%;
             padding: 3px 10px;
             cursor: pointer;
             font-size: 1.5em;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
         .delete-button:hover {
-            background-color: #8c0000;
+            background-color: #555;
             -webkit-transition: .2s ease-in-out;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
         
         body::-webkit-scrollbar {
@@ -160,7 +170,7 @@
         }
 
         .download-button {
-            background-color: #ff0000;
+            background-color:  fuchsia;
             color: #F2F0EF;
             border: none;
             padding: 8px 10px;
@@ -171,27 +181,33 @@
             margin-bottom: 3px;
             margin-right: -8px;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
 
         .download-button:hover {
-            background-color: #8C0000;
+            background-color: #a000a0;
             -webkit-transition: .2s ease-in-out;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
 
         /* ===== 댓글 기능 추가를 위한 CSS ===== */
         .comment-container {
             margin-top: 15px;
             padding-top: 10px;
-            border-top: 1px solid fuchsia;
+            border-top: 2px solid fuchsia;
         }
         .comment-list {
-            margin-bottom: 10px;
-            max-height: 100px;
+            margin-top: 9px;
+            margin-bottom: 17px;
+            max-height: 90px;
             overflow-y: auto;
             padding-right: 5px; /* 스크롤바 공간 확보 */
         }
         .comment-list p {
+            font-family: "Orbit", sans-serif;
+            font-weight: 400;
+            font-style: normal;
             font-size: 0.8em;
             margin-bottom: 5px;
             word-break: break-all; /* 긴 단어 줄바꿈 */
@@ -201,9 +217,10 @@
             gap: 5px;
         }
         .comment-form input {
+            margin-bottom: 12px;
             flex-grow: 1;
-            background-color: #333;
-            border: 1px solid fuchsia;
+            background-color: #444;
+            border: 2px solid fuchsia;
             color: #F2F0EF;
             padding: 5px;
             font-family: "Orbit", sans-serif;
@@ -214,26 +231,26 @@
             box-shadow: 0 0 5px #FF00FF;
         }
         .comment-form button {
+            margin-bottom: 12px;
             background-color: fuchsia;
             border: none;
-            color: black;
+            color: #F2F0EF;
             padding: 5px 10px;
             cursor: pointer;
             font-family: "Orbit", sans-serif;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
         .comment-form button:hover {
             background-color: #a000a0;
+            user-select:none; 
         }
         /* 댓글 영역 스크롤바 스타일 */
         .comment-list::-webkit-scrollbar {
-            width: 10px;
+            width: 12px;
         }
         .comment-list::-webkit-scrollbar-thumb {
             background: fuchsia;
-        }
-        .comment-list::-webkit-scrollbar-track {
-            background: #222;
         }
         /* ===== CSS 추가 끝 ===== */
     </style>
@@ -248,18 +265,20 @@
 
     <script>
         let previousArchiveCount = 0;
-        let currentFilter = null; // 현재 활성화된 필터 (localStorage 키 이름)
-        const triggers = { // 각 트리거와 연결된 필터 키
+        let currentFilter = null;
+        const triggers = {
             'circle-trigger': 'memeSnakeArchives',
             'square-trigger': 'memetetrisarchives',
             'rounded-square-trigger': 'meme2048Archives'
         };
 
+        // [추가] 랜덤 정렬이 필요한 시점을 제어하기 위한 플래그
+        let shouldShuffle = true;
+
         document.addEventListener('DOMContentLoaded', () => {
-            loadArchives(); // 초기 로드: 모든 아카이브 랜덤 표시
+            loadArchives(); 
             setInterval(checkAndLoadArchives, 5000);
 
-            // 트리거 버튼 이벤트 리스너 설정
             document.getElementById('circle-trigger').onclick = () => handleTriggerClick('memeSnakeArchives', 'circle-trigger');
             document.getElementById('square-trigger').onclick = () => handleTriggerClick('memetetrisarchives', 'square-trigger');
             document.getElementById('rounded-square-trigger').onclick = () => handleTriggerClick('meme2048Archives', 'rounded-square-trigger');
@@ -267,12 +286,14 @@
 
         function handleTriggerClick(filterKey, triggerId) {
             const triggerElement = document.getElementById(triggerId);
-            if (currentFilter === filterKey) { // 이미 해당 필터가 활성화된 경우
-                currentFilter = null; // 필터 해제
+            if (currentFilter === filterKey) {
+                currentFilter = null;
                 triggerElement.classList.remove('active');
-                loadArchives(); // 모든 아카이브 랜덤으로 표시
-            } else { // 새로운 필터 적용 또는 필터 변경
-                if (currentFilter) { // 기존에 다른 필터가 활성화되어 있었다면 비활성화
+                // [수정] 필터를 해제하고 전체 목록으로 돌아갈 때만 랜덤 정렬을 다시 하도록 플래그 설정
+                shouldShuffle = true;
+                loadArchives();
+            } else {
+                if (currentFilter) {
                     const activeTriggerId = Object.keys(triggers).find(id => triggers[id] === currentFilter);
                     if (activeTriggerId) {
                         document.getElementById(activeTriggerId).classList.remove('active');
@@ -280,7 +301,9 @@
                 }
                 currentFilter = filterKey;
                 triggerElement.classList.add('active');
-                loadArchives(filterKey); // 특정 아카이브 표시
+                // [추가] 필터를 적용할 때는 랜덤 정렬을 하지 않음
+                shouldShuffle = false;
+                loadArchives(filterKey);
             }
         }
         
@@ -304,7 +327,9 @@
             const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length + tetrisArchives.length;
 
             if (currentTotalArchiveCount !== previousArchiveCount) {
-                loadArchives(currentFilter); // 현재 필터 상태 유지하며 새로고침
+                // [추가] 백그라운드 체크로 인한 업데이트 시에는 순서가 섞이지 않도록 함
+                shouldShuffle = false;
+                loadArchives(currentFilter);
                 previousArchiveCount = currentTotalArchiveCount;
             }
         }
@@ -313,7 +338,6 @@
             const archiveContainer = document.getElementById('archive-container');
             const noArchivesMessage = document.getElementById('no-archives');
             
-            // 각 아카이브 로드 및 sourceKey 추가
             let snakeData = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
             snakeData = snakeData.map(item => ({ ...item, sourceKey: 'memeSnakeArchives' }));
 
@@ -326,22 +350,24 @@
             let archivesToDisplay = [];
 
             if (filterType) {
-                if (filterType === 'memeSnakeArchives') {
-                    archivesToDisplay = snakeData;
-                } else if (filterType === 'meme2048Archives') {
-                    archivesToDisplay = game2048Data;
-                } else if (filterType === 'memetetrisarchives') {
-                    archivesToDisplay = tetrisData;
-                }
-            } else { // 필터가 없으면 (currentFilter가 null이면) 모든 아카이브를 합침
+                if (filterType === 'memeSnakeArchives') archivesToDisplay = snakeData;
+                else if (filterType === 'meme2048Archives') archivesToDisplay = game2048Data;
+                else if (filterType === 'memetetrisarchives') archivesToDisplay = tetrisData;
+            } else {
                 archivesToDisplay = [...snakeData, ...game2048Data, ...tetrisData];
-                // Fisher-Yates shuffle algorithm for random sorting
-                for (let i = archivesToDisplay.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [archivesToDisplay[i], archivesToDisplay[j]] = [archivesToDisplay[j], archivesToDisplay[i]];
+                
+                // [수정] shouldShuffle 플래그가 true일 때만 랜덤 정렬을 실행
+                if (shouldShuffle) {
+                    for (let i = archivesToDisplay.length - 1; i > 0; i--) {
+                        const j = Math.floor(Math.random() * (i + 1));
+                        [archivesToDisplay[i], archivesToDisplay[j]] = [archivesToDisplay[j], archivesToDisplay[i]];
+                    }
                 }
             }
-            updateAllTriggerStyles(); // 필터 상태에 따라 트리거 스타일 업데이트
+            // [추가] 정렬 실행 후에는 플래그를 false로 바꿔서 다음 호출(예: 댓글 추가) 시에는 정렬되지 않도록 함
+            shouldShuffle = false;
+
+            updateAllTriggerStyles();
 
             if (archivesToDisplay.length === 0) {
                 noArchivesMessage.textContent = filterType ? 'Play!' : 'Play!!!';
@@ -352,7 +378,7 @@
                 noArchivesMessage.style.display = 'none';
             }
 
-            archiveContainer.innerHTML = ''; // 기존 내용 지우기
+            archiveContainer.innerHTML = ''; 
             archivesToDisplay.forEach(item => {
                 const archiveItemDiv = document.createElement('div');
                 archiveItemDiv.className = 'archive-item';
@@ -366,15 +392,10 @@
                 const img = document.createElement('img');
                 img.src = item.imageData;
                 
-                if (item.sourceKey === 'meme2048Archives') {
-                    img.alt = `2048 Game Screenshot at ${item.timestamp}`;
-                } else if (item.sourceKey === 'memetetrisarchives') {
-                    img.alt = `Meme Tetris at ${item.timestamp}`;
-                } else if (item.sourceKey === 'memeSnakeArchives') {
-                    img.alt = `Meme Snake at ${item.timestamp}`;
-                } else {
-                     img.alt = `Archived item at ${item.timestamp}`; // fallback
-                }
+                if (item.sourceKey === 'meme2048Archives') img.alt = `2048 Game Screenshot at ${item.timestamp}`;
+                else if (item.sourceKey === 'memetetrisarchives') img.alt = `Meme Tetris at ${item.timestamp}`;
+                else if (item.sourceKey === 'memeSnakeArchives') img.alt = `Meme Snake at ${item.timestamp}`;
+                else img.alt = `Archived item at ${item.timestamp}`;
                 archiveItemDiv.appendChild(img);
 
                 const infoAndDownloadContainer = document.createElement('div');
@@ -406,15 +427,10 @@
                 downloadButton.textContent = 'Download';
                 downloadButton.href = item.imageData;
                 
-                if (item.sourceKey === 'meme2048Archives') {
-                    downloadButton.download = `2048_screenshot_${item.id}.png`;
-                } else if (item.sourceKey === 'memetetrisarchives') {
-                    downloadButton.download = `meme_tetris_${item.id}.png`;
-                } else if (item.sourceKey === 'memeSnakeArchives') {
-                    downloadButton.download = `meme_snake_${item.id}.png`;
-                } else {
-                    downloadButton.download = `archive_${item.id}.png`; // fallback
-                }
+                if (item.sourceKey === 'meme2048Archives') downloadButton.download = `2048_screenshot_${item.id}.png`;
+                else if (item.sourceKey === 'memetetrisarchives') downloadButton.download = `meme_tetris_${item.id}.png`;
+                else if (item.sourceKey === 'memeSnakeArchives') downloadButton.download = `meme_snake_${item.id}.png`;
+                else downloadButton.download = `archive_${item.id}.png`;
                 infoAndDownloadContainer.appendChild(downloadButton);
                 archiveItemDiv.appendChild(infoAndDownloadContainer);
 
@@ -430,13 +446,11 @@
                 };
                 archiveItemDiv.appendChild(deleteButton);
                 
-                // ===== 댓글 기능 HTML 요소 추가 시작 =====
                 const commentContainer = document.createElement('div');
                 commentContainer.className = 'comment-container';
 
                 const commentList = document.createElement('div');
                 commentList.className = 'comment-list';
-                // 저장된 댓글 불러오기
                 if (item.comments && item.comments.length > 0) {
                     item.comments.forEach(comment => {
                         const commentP = document.createElement('p');
@@ -474,25 +488,25 @@
                 commentContainer.appendChild(commentForm);
 
                 archiveItemDiv.appendChild(commentContainer);
-                // ===== 댓글 기능 HTML 요소 추가 끝 =====
 
                 archiveContainer.appendChild(archiveItemDiv);
             });
         }
 
-        // ===== 댓글 추가 함수 =====
         function addComment(itemId, keyName, commentText) {
             let archives = JSON.parse(localStorage.getItem(keyName)) || [];
             const itemIndex = archives.findIndex(item => item.id === itemId);
 
             if (itemIndex > -1) {
-                // 댓글 배열이 없으면 새로 생성
                 if (!archives[itemIndex].comments) {
                     archives[itemIndex].comments = [];
                 }
                 archives[itemIndex].comments.push(commentText);
                 localStorage.setItem(keyName, JSON.stringify(archives));
-                loadArchives(currentFilter); // 댓글 추가 후 목록 새로고침
+                
+                // [수정] 댓글 추가 시에는 랜덤 정렬을 하지 않도록 플래그를 false로 설정
+                shouldShuffle = false;
+                loadArchives(currentFilter);
             }
         }
 
@@ -502,6 +516,9 @@
             localStorage.setItem(keyName, JSON.stringify(archives));
             
             previousArchiveCount = (JSON.parse(localStorage.getItem('memeSnakeArchives')) || []).length +(JSON.parse(localStorage.getItem('meme2048Archives')) || []).length +(JSON.parse(localStorage.getItem('memetetrisarchives')) || []).length;
+            
+            // [추가] 아이템 삭제 시에도 순서 유지를 위해 랜덤 정렬 방지
+            shouldShuffle = false;
             loadArchives(currentFilter);
         }
     </script>
