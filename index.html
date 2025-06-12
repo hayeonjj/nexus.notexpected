@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial=" initial-scale="1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>REMEME</title>
     <style>
 
@@ -30,12 +30,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            font-size: 36px; /* 화면을 꽉 채우는 폰트 크기 (조절 가능) */
+            font-size: 2.25rem; /* 36px */
             text-align: justify;
             line-height: 1; /* 줄 간격 조절 */
             word-break: break-all; /* 단어가 줄 바꿈될 때 단어 단위로 끊기지 않게 */
             box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
-            letter-spacing: -2px; /* 글자 간 간격 조절 */
+            letter-spacing: -0.125rem; /* -2px */
             user-select: none; /* 텍스트 드래그 방지 */
             z-index: 1; /* 도형보다 아래에 위치 */
         }
@@ -53,8 +53,8 @@
         /* 공통 트리거 스타일 */
         .trigger-shape {
             position: fixed; /* 뷰포트에 고정 */
-            width: 70px; /* 원형 도형과 동일한 크기 */
-            height: 70px; /* 원형 도형과 동일한 크기 */
+            width: 4.375rem; /* 70px */
+            height: 4.375rem; /* 70px */
             cursor: pointer;
             z-index: 10; /* 가장 위에 위치 */
             transition: background-color 0.3s ease, border-radius 0.3s ease;
@@ -62,8 +62,8 @@
 
         /* 개별 트리거 스타일 */
         #circle-trigger {
-            top: 25px;
-            left: 25px;
+            top: 1.5625rem; /* 25px */
+            left: 1.5625rem; /* 25px */
             background-color:rgb(255, 50, 0);
             border-radius: 50%; /* 원형 */
             -webkit-transition: .3s ease-in-out;
@@ -72,45 +72,43 @@
 
         #circle-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger {
-            height: 64px;
-            width: 64px;
-            top: 120px;
-            left: 28px; /* 원형 도형과 같은 왼쪽 정렬 */
+            height: 4rem; /* 64px */
+            width: 4rem; /* 64px */
+            top: 7.5rem; /* 120px */
+            left: 1.75rem; /* 28px */
             background-color:rgb(255, 255, 20);
             border-radius: 0; /* 사각형 */
-
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger {
-            height: 68px;
-            width: 68px;
-            top: 214px;
-            left: 26px; /* 원형 도형과 같은 왼쪽 정렬 */
+            height: 4.25rem; /* 68px */
+            width: 4.25rem; /* 68px */
+            top: 13.375rem; /* 214px */
+            left: 1.625rem; /* 26px */
             background-color:rgb(0, 255, 225);
-            border-radius: 16px; /* 라운딩 코너 (원하는 값으로 조절) */
-
+            border-radius: 1rem; /* 16px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -122,7 +120,7 @@
             left: 50%;
             transform: translate(-50%, -50%);
             white-space: pre; /* 공백과 줄 바꿈 유지 */
-            font-size: 36px; /* 아스키 아트 글자 크기 (조절 가능) */
+            font-size: 2.25rem; /* 36px */
             line-height: 1;
             opacity: 0; /* 초기에는 숨김 */
             transition: opacity 0.5s ease; /* 부드러운 나타남 효과 */
@@ -130,7 +128,7 @@
             pointer-events: none; /* 아스키 아트 위로 마우스 이벤트를 통과시킴 */
             color: fuchsia; /* 아스키 아트 텍스트 색상 */
             font-weight: bold; /* 아스키 아트 텍스트 굵기 */
-            -webkit-text-stroke: 2px fuchsia;
+            -webkit-text-stroke: 0.125rem fuchsia; /* 2px */
         }
     </style>
 </head>
@@ -238,14 +236,23 @@ XXXXX XXXXX     X  XXX
 
         // --- div에 게임 링크 연결 ---
         function goToAnotherPage1() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './snake/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
         }
         function goToAnotherPage2() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './tetris/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
         }
 
         function goToAnotherPage3() {
+            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './2048/index.html';
+            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
+            // window.location.href = './my-folder/';
         }        
     </script>
 </body>
