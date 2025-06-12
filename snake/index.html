@@ -33,16 +33,16 @@
             height: 100%; /* Full height */
         }
         #start-selection {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem; /* 20px */
             font-weight: 700;
             text-align: center;
         }
         .chosung-option {
             display: inline-block;
-            margin: 7px 3px;
-            padding: 9px 13px;
+            margin: 0.4375rem 0.1875rem; /* 7px 3px */
+            padding: 0.5625rem 0.8125rem; /* 9px 13px */
             border-radius: 50%;
-            font-size: 32px;
+            font-size: 2rem; /* 32px */
             font-weight: 900;
             background-color: #7FFF00;
             -webkit-transition: .3s ease-in-out;
@@ -53,7 +53,7 @@
         }
 
         .chosung-option:hover {
-            filter:blur(3px);
+            filter:blur(0.1875rem); /* 3px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -63,7 +63,7 @@
             top: 7%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 20px;
+            font-size: 1.25rem; /* 20px */
             font-weight: 700 !important;
             text-align: center;
             pointer-events: none;
@@ -74,24 +74,24 @@
 
         #next-button {
             position: absolute;
-            right: 20px;
-            bottom: 20px;
-            padding: 15px 30px;
+            right: 1.25rem; /* 20px */
+            bottom: 1.25rem; /* 20px */
+            padding: 0.9375rem 1.875rem; /* 15px 30px */
             font-family: "Gothic A1", sans-serif;
             font-weight: 700;
             font-style: normal;
-            font-size: 20px;
+            font-size: 1.25rem; /* 20px */
             background-color: #FF0000; /* '글자 조합' 버튼과 동일한 색상 */
             color: #F2F0EF;
             border: none;
-            border-radius: 4px;
+            border-radius: 0.25rem; /* 4px */
             cursor: pointer;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #next-button:hover {
-            filter:blur(3px);
+            filter:blur(0.1875rem); /* 3px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -109,54 +109,75 @@
             top: 5%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 20px;
+            font-size: 1.25rem; /* 20px */
             text-align: center;
         }
         #captured-jamo {
-            margin-bottom: 20px;
+            margin-bottom: 1.25rem; /* 20px */
             font-weight: 700;
             text-align: center;
             position: relative;
             z-index: 1;
-            padding: 20px;
-            min-height: 200px;
+            padding: 1.25rem; /* 20px */
+            min-height: 12.5rem; /* 200px */
             box-sizing: border-box;
             width: 80%;
             margin-top: 10%;
         }
-        .draggable-jamo {
-            display: inline-block;
-            margin: 7px 3px;
-            padding: 9px 13px;
-            border-radius: 50%;
+        /* 블록 전체를 감싸고 위치와 크기를 담당하는 컨테이너 */
+        .jamo-wrapper {
+            /* 기존 .chosung-option과 유사한 크기를 갖도록 설정 */
+            width: 3.6rem; /* 대략적인 크기, 필요시 조절 */
+            height: 3.6rem; /* 대략적인 크기, 필요시 조절 */
             cursor: grab;
-            font-size: 32px;
-            background-color: #ff99fa;
-            position: relative; /* for absolute positioning during drag */
-            user-select:none;
+            user-select: none;
+        }
 
+        /* 배경 원 스타일 (z-index: 1) */
+        .jamo-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff99fa;
+            border-radius: 50%;
+            z-index: 1; /* 텍스트보다 낮은 스택 순서 */
+        }
+
+        /* 텍스트 스타일 (z-index: 2) */
+        .jamo-text {
+            position: relative; /* z-index 적용을 위해 position 속성 필요 */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            color: #FF0000;
+            z-index: 2; /* 배경보다 높은 스택 순서 */
         }
         #capture-result {
             position: absolute; /* '글자 조합' 버튼과 동일한 위치 */
-            right: 20px;
-            bottom: 20px;
-            padding: 15px 30px;
+            right: 1.25rem; /* 20px */
+            bottom: 1.25rem; /* 20px */
+            padding: 0.9375rem 1.875rem; /* 15px 30px */
             font-family: "Gothic A1", sans-serif;
             font-weight: 700;
             font-style: normal;
-            font-size: 20px;
+            font-size: 1.25rem; /* 20px */
             background-color: #FF0000; /* '글자 조합' 버튼과 동일한 색상 */
             color: #F2F0EF;
             border: none;
-            border-radius: 4px;
-            margin-top: 20px; /* 기존 margin 제거 */
+            border-radius: 0.25rem; /* 4px */
+            margin-top: 1.25rem; /* 20px */
             -webkit-transition: .3s ease-in-out;
             cursor: pointer;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
         #capture-result:hover {
-            filter:blur(3px);
+            filter:blur(0.1875rem); /* 3px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -167,15 +188,15 @@
             top: 7%;
             left: 50%;
             transform: translate(-50%, -50%);
-            padding: 10px 20px;
+            padding: 0.625rem 1.25rem; /* 10px 20px */
             font-family: "Gothic A1", sans-serif;
             font-weight: 700;
             font-style: normal;
-            font-size: 20px;
+            font-size: 1.25rem; /* 20px */
             background-color: #F2F0EF;
             color: #FF0000;
-            box-shadow: 0px 0px 12px 3px #FF0000;
-            border-radius: 4px;
+            box-shadow: 0 0 0.75rem 0.1875rem #FF0000; /* 0px 0px 12px 3px */
+            border-radius: 0.25rem; /* 4px */
             z-index: 1001; /* 오버레이보다 위에 */
             display: none; /* 초기에는 숨김 */
             opacity: 0; /* 초기 투명도 0 */
@@ -282,10 +303,25 @@
 
         // 다음 단계 버튼 클릭 이벤트 리스너
         nextButton.addEventListener('click', () => {
+            // --- [추가된 부분 시작] ---
+            // 각 자모의 최종 화면 위치를 계산하여 저장합니다.
+            const w = renderer.domElement.clientWidth;
+            const h = renderer.domElement.clientHeight;
+
+            collectedLetters.forEach(item => {
+                if (item.mesh) {
+                    const vector = item.mesh.position.clone().project(camera);
+                    
+                    // 3D 좌표를 2D 화면 픽셀 좌표로 변환
+                    item.screenX = (vector.x * 0.5 + 0.5) * w;
+                    item.screenY = (-vector.y * 0.5 + 0.5) * h; // Y축은 반대
+                }
+            });
+            // --- [추가된 부분 끝] ---
+
             gameContainer.style.display = 'none';
             combinationArea.style.display = 'flex';
             displayCapturedJamo();
-            // 다음 단계로 넘어갈 때 nextButton과 captureResultButton의 숨김을 해제
             nextButton.classList.remove('hidden');
             captureResultButton.classList.remove('hidden');
         });
@@ -521,16 +557,68 @@
             }
         }
 
+
+
         function displayCapturedJamo() {
             capturedJamoDiv.innerHTML = '';
             draggableJamoElements = [];
-            collectedLetters.forEach(item => {
-                const jamoSpan = document.createElement('span');
-                jamoSpan.textContent = item.value;
-                jamoSpan.className = 'draggable-jamo';
-                capturedJamoDiv.appendChild(jamoSpan);
-                draggableJamoElements.push(jamoSpan);
+            if (collectedLetters.length === 0) return;
+
+            // [1~3단계는 이전과 동일하게 유지됩니다]
+            const positionedLetters = collectedLetters.filter(item => item.screenX !== undefined);
+            if (positionedLetters.length === 0) return;
+
+            let minX = positionedLetters[0].screenX, maxX = positionedLetters[0].screenX;
+            let minY = positionedLetters[0].screenY, maxY = positionedLetters[0].screenY;
+            positionedLetters.forEach(item => {
+                minX = Math.min(minX, item.screenX);
+                maxX = Math.max(maxX, item.screenX);
+                minY = Math.min(minY, item.screenY);
+                maxY = Math.max(maxY, item.screenY);
             });
+
+            const shapeWidth = maxX - minX, shapeHeight = maxY - minY;
+            const shapeCenterX = minX + shapeWidth / 2, shapeCenterY = minY + shapeHeight / 2;
+            const parentRect = capturedJamoDiv.getBoundingClientRect();
+            const parentCenterX = parentRect.width / 2, parentCenterY = parentRect.height / 2;
+            const offsetX = parentCenterX - shapeCenterX, offsetY = parentCenterY - shapeCenterY;
+            const baseFontSize = 16;
+
+            // [4단계] 블록을 만드는 HTML 구조를 변경합니다.
+            collectedLetters.forEach(item => {
+                // --- [수정된 부분 시작] ---
+                // 1. 전체를 감싸는 wrapper div를 만듭니다. (이것이 드래그 대상이 됩니다)
+                const jamoWrapper = document.createElement('div');
+                jamoWrapper.className = 'jamo-wrapper';
+
+                // 2. 배경 역할을 할 div를 만듭니다.
+                const backgroundDiv = document.createElement('div');
+                backgroundDiv.className = 'jamo-background';
+
+                // 3. 텍스트 역할을 할 span을 만듭니다.
+                const textSpan = document.createElement('span');
+                textSpan.className = 'jamo-text';
+                textSpan.textContent = item.value;
+
+                // 4. wrapper에 배경과 텍스트를 순서대로 추가합니다.
+                jamoWrapper.appendChild(backgroundDiv);
+                jamoWrapper.appendChild(textSpan);
+                // --- [수정된 부분 끝] ---
+
+                if (item.screenX !== undefined && item.screenY !== undefined) {
+                    // 위치는 wrapper에 적용합니다.
+                    jamoWrapper.style.position = 'absolute';
+                    const finalX = item.screenX + offsetX;
+                    const finalY = item.screenY + offsetY;
+                    jamoWrapper.style.left = (finalX / baseFontSize) + 'rem';
+                    jamoWrapper.style.top = (finalY / baseFontSize) + 'rem';
+                }
+
+                capturedJamoDiv.appendChild(jamoWrapper);
+                // 드래그 대상 목록에는 wrapper를 추가합니다.
+                draggableJamoElements.push(jamoWrapper);
+            });
+
             setupDragAndDrop();
         }
 
@@ -541,29 +629,23 @@
         }
 
         function onDragStart(event) {
-            draggedJamo = event.target;
+            // 클릭된 요소(텍스트 또는 배경)가 아닌, 그것들을 감싸는 부모(.jamo-wrapper)를 드래그 대상으로 지정합니다.
+            draggedJamo = event.target.closest('.jamo-wrapper');
+            if (!draggedJamo) return; // jamo-wrapper를 찾지 못하면 함수 종료
 
-            // dragOffsetX, dragOffsetY 계산 수정:
-            // draggedJamo의 부모 요소 (여기서는 capturedJamoDiv)의 getBoundingClientRect를 기준으로
-            // 마우스 클릭 위치(event.clientX/Y)의 상대 좌표를 구합니다.
-            // 그리고 draggedJamo의 현재 offsetLeft/Top (부모 기준 실제 렌더링된 위치)과의 차이를 계산합니다.
-            const parentRect = draggedJamo.offsetParent.getBoundingClientRect(); // offsetParent 사용
+            const parentRect = draggedJamo.offsetParent.getBoundingClientRect();
             const mouseXInParent = event.clientX - parentRect.left;
             const mouseYInParent = event.clientY - parentRect.top;
 
-            // draggedJamo.offsetLeft과 draggedJamo.offsetTop은
-            // 이미 부모 요소(offsetParent) 기준의 상대 위치입니다.
             dragOffsetX = mouseXInParent - draggedJamo.offsetLeft;
             dragOffsetY = mouseYInParent - draggedJamo.offsetTop;
 
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
-
-            // position: 'absolute'와 zIndex는 mousedown 시점에 바로 적용
-            draggedJamo.style.position = 'absolute';
+            
+            // 드래그하는 동안에는 zIndex를 높여 다른 요소들 위로 올라오게 합니다.
             draggedJamo.style.zIndex = 1000;
-
-            // 첫 클릭 시 바로 이동하지 않도록 초기 위치 업데이트는 onDragMove에서 처리
+            draggedJamo.style.cursor = 'grabbing'; // 드래그 중 커서 모양 변경
         }
 
         function onDragMove(event) {
