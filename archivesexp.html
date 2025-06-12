@@ -10,7 +10,7 @@
             font-family: "Orbit", sans-serif;
             font-weight: 400;
             font-style: normal;
-            margin: 20px;
+            margin: 1.25rem; /* 20px */
             background-color: black;
             color: #F2F0EF;
             text-align: center;
@@ -22,24 +22,22 @@
             background-color: #ff99fa;
         }
 
-
-
         h1 {
             color: fuchsia;
-            margin-bottom: 30px;
-            font-size: 36px;
-            user-select:none;            
+            margin-bottom: 1.875rem; /* 30px */
+            font-size: 2.25rem; /* 36px */
+            user-select:none;               
         }
         #archive-container {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
-            gap: 20px;
+            gap: 1.25rem; /* 20px */
         }
         .archive-item {
-            border: 2px solid fuchsia;
-            padding: 5px 15px;
-            width: 330px; /* 각 캡쳐 이미지 컨테이너의 너비 조정 */
+            border: 0.125rem solid fuchsia; /* 2px */
+            padding: 0.3125rem 0.9375rem; /* 5px 15px */
+            width: 20.625rem; /* 330px */
             height:fit-content;
             text-align: left;
             position: relative; /* 삭제 버튼 위치 조정을 위해 추가 */
@@ -49,7 +47,7 @@
             max-width: 100%;
             height: auto;
             display: block; /* 이미지 하단 여백 제거 */
-            margin-bottom: 10px;
+            margin-bottom: 0.625rem; /* 10px */
         }
         .archive-item p {
             font-size: 0.9em;
@@ -58,13 +56,13 @@
         }
         .delete-button {
             position: absolute;
-            top: 12px;
-            right: 11px;
+            top: 0.75rem; /* 12px */
+            right: 0.6875rem; /* 11px */
             color: fuchsia;
             background-color: black;
-            border: 2px solid fuchsia;
+            border: 0.125rem solid fuchsia; /* 2px */
             border-radius: 50%;
-            padding: 3px 10px;
+            padding: 0.1875rem 0.625rem; /* 3px 10px */
             cursor: pointer;
             font-size: 1.5em;
             transition: .2s ease-in-out;
@@ -78,8 +76,8 @@
         }
         
         body::-webkit-scrollbar {
-            width: 20px;
-            height: 50px;
+            width: 1.25rem; /* 20px */
+            height: 3.125rem; /* 50px */
         }
 
         body::-webkit-scrollbar-thumb:vertical {
@@ -89,26 +87,25 @@
         #no-archives {
             color: #F2F0EF;
             font-size: 1.2em;
-            margin-top: 50px;
+            margin-top: 3.125rem; /* 50px */
         }
 
         .trigger-shape {
             position: fixed;
-            width: 70px;
-            height: 70px;
+            width: 4.375rem; /* 70px */
+            height: 4.375rem; /* 70px */
             cursor: pointer;
             z-index: 10;
             transition: background-color 0.3s ease, border-radius 0.3s ease, filter 0.3s ease; /* filter 추가 */
         }
         .trigger-shape.active { /* 활성화된 트리거 스타일 */
-            /*filter: drop-shadow(0 0 10px fuchsia) brightness(1.2);*/
-            filter: blur(4px);
+            /*filter: drop-shadow(0 0 0.625rem fuchsia) brightness(1.2);*/ /* 10px */
+            filter: blur(0.25rem); /* 4px */
         }
 
-
         #circle-trigger {
-            top: 25px;
-            left: 25px;
+            top: 1.5625rem; /* 25px */
+            left: 1.5625rem; /* 25px */
             background-color:rgb(255, 50, 0);
             border-radius: 50%;
             -webkit-transition: .3s ease-in-out;
@@ -117,45 +114,43 @@
 
         #circle-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger {
-            height: 64px;
-            width: 64px;
-            top: 120px;
-            left: 28px;
+            height: 4rem; /* 64px */
+            width: 4rem; /* 64px */
+            top: 7.5rem; /* 120px */
+            left: 1.75rem; /* 28px */
             background-color:rgb(255, 255, 20);
             border-radius: 0;
-
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger {
-            height: 68px;
-            width: 68px;
-            top: 214px;
-            left: 26px;
+            height: 4.25rem; /* 68px */
+            width: 4.25rem; /* 68px */
+            top: 13.375rem; /* 214px */
+            left: 1.625rem; /* 26px */
             background-color:rgb(0, 255, 255);
-            border-radius: 16px;
-
+            border-radius: 1rem; /* 16px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
@@ -164,22 +159,22 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-top: 10px;
-            margin-bottom: 5px;
-            padding: 0 5px;
+            margin-top: 0.625rem; /* 10px */
+            margin-bottom: 0.3125rem; /* 5px */
+            padding: 0 0.3125rem; /* 0 5px */
         }
 
         .download-button {
             background-color:  fuchsia;
             color: #F2F0EF;
             border: none;
-            padding: 8px 10px;
+            padding: 0.5rem 0.625rem; /* 8px 10px */
             cursor: pointer;
             font-size: 0.8em;
             text-decoration: none;
             white-space: nowrap;
-            margin-bottom: 3px;
-            margin-right: -8px;
+            margin-bottom: 0.1875rem; /* 3px */
+            margin-right: -0.5rem; /* -8px */
             transition: .2s ease-in-out;
             user-select:none; 
         }
@@ -193,49 +188,48 @@
 
         /* ===== 댓글 기능 추가를 위한 CSS ===== */
         .comment-container {
-            margin-top: 15px;
-            padding-top: 10px;
-            border-top: 2px solid fuchsia;
+            margin-top: 0.9375rem; /* 15px */
+            padding-top: 0.625rem; /* 10px */
+            border-top: 0.125rem solid fuchsia; /* 2px */
         }
         .comment-list {
-            margin-top: 9px;
-            margin-bottom: 17px;
-            max-height: 90px;
+            margin-top: 0.5625rem; /* 9px */
+            margin-bottom: 1.0625rem; /* 17px */
+            max-height: 5.625rem; /* 90px */
             overflow-y: auto;
-            padding-right: 5px; /* 스크롤바 공간 확보 */
+            padding-right: 0.3125rem; /* 5px */
         }
         .comment-list p {
             font-family: "Orbit", sans-serif;
             font-weight: 400;
             font-style: normal;
             font-size: 0.8em;
-            margin-bottom: 5px;
+            margin-bottom: 0.3125rem; /* 5px */
             word-break: break-all; /* 긴 단어 줄바꿈 */
         }
         .comment-form {
             display: flex;
-            gap: 5px;
+            gap: 0.3125rem; /* 5px */
         }
         .comment-form input {
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem; /* 12px */
             flex-grow: 1;
             background-color: #444;
-            border: 2px solid fuchsia;
+            border: 0.125rem solid fuchsia; /* 2px */
             color: #F2F0EF;
-            padding: 5px;
+            padding: 0.3125rem; /* 5px */
             font-family: "Orbit", sans-serif;
         }
         .comment-form input:focus {
             outline: none;
             border-color: #FF00FF;
-            box-shadow: 0 0 5px #FF00FF;
         }
         .comment-form button {
-            margin-bottom: 12px;
+            margin-bottom: 0.75rem; /* 12px */
             background-color: fuchsia;
             border: none;
             color: #F2F0EF;
-            padding: 5px 10px;
+            padding: 0.3125rem 0.625rem; /* 5px 10px */
             cursor: pointer;
             font-family: "Orbit", sans-serif;
             transition: .2s ease-in-out;
@@ -247,7 +241,7 @@
         }
         /* 댓글 영역 스크롤바 스타일 */
         .comment-list::-webkit-scrollbar {
-            width: 12px;
+            width: 0.75rem; /* 12px */
         }
         .comment-list::-webkit-scrollbar-thumb {
             background: fuchsia;
@@ -474,12 +468,12 @@
                 const commentInput = document.createElement('input');
                 commentInput.type = 'text';
                 commentInput.name = 'comment';
-                commentInput.placeholder = 'Add a comment...';
+                commentInput.placeholder = 'Leave a comment...';
                 commentInput.autocomplete = 'off';
 
                 const commentButton = document.createElement('button');
                 commentButton.type = 'submit';
-                commentButton.textContent = 'Post';
+                commentButton.textContent = 'Submit';
 
                 commentForm.appendChild(commentInput);
                 commentForm.appendChild(commentButton);
