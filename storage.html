@@ -1,105 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>STORAGE</title>
+    <title>Storage</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
         body {
             font-family: "Orbit", sans-serif;
             font-weight: 400;
             font-style: normal;
-            margin: 20px;
             background-color: black;
             color: #F2F0EF;
             text-align: center;
-            user-select:none;
             cursor: crosshair;
+            user-select: none;
+            overflow: scroll;
         }
+        ::selection {  
+            color: #F2F0EF;
+            background-color: #ff99fa;
+        }
+
         h1 {
             color: fuchsia;
-            margin-bottom: 30px;
-            font-size: 36px;
+            height: 5%; 
+            margin-bottom: 1.875rem; /* 30px */
+            font-size: 2.25rem; /* 36px */
+            user-select:none;          
+            position: fixed;
+            top: 0rem;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
         }
+
         #archive-container {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
+            position: relative;
+            width: 95vw;
+            height: 95vh;
         }
         .archive-item {
-            border: 2px solid fuchsia;
-            padding: 5px 15px;
-            width: 330px; /* 각 캡쳐 이미지 컨테이너의 너비 조정 */
+            border: 0.125rem solid fuchsia; /* 2px */
+            padding: 0.3125rem 0.9375rem; /* 5px 15px */
+            width: 20.625rem; /* 330px */
             height:fit-content;
             text-align: left;
-            position: relative; /* 삭제 버튼 위치 조정을 위해 추가 */
-            box-sizing: border-box; /* 패딩과 보더가 너비에 포함되도록 */
+            position: absolute; 
+            box-sizing: border-box; 
+            user-select: text;
         }
         .archive-item img {
             max-width: 100%;
             height: auto;
-            display: block; /* 이미지 하단 여백 제거 */
-            margin-bottom: 10px;
+            display: block; 
+            margin-bottom: 0.625rem; /* 10px */
+            -webkit-user-drag: none;
         }
         .archive-item p {
             font-size: 0.9em;
             color: #F2F0EF;
-            margin: 0; /* 기본 마진 제거 */
+            margin: 0; 
         }
         .delete-button {
             position: absolute;
-            top: 10px;
-            right: 10px;
-            background-color: #FF0000;
-            color: #F2F0EF;
-            border: none;
+            top: 0.75rem; /* 12px */
+            right: 0.6875rem; /* 11px */
+            color: fuchsia;
+            background-color: black;
+            border: 0.125rem solid fuchsia; /* 2px */
             border-radius: 50%;
-            padding: 3px 10px;
+            padding: 0.1875rem 0.625rem; /* 3px 10px */
             cursor: pointer;
             font-size: 1.5em;
-            transition: .2s ease-in-out;          
+            transition: .2s ease-in-out;
+            user-select:none; 
         }
         .delete-button:hover {
-            background-color: #8c0000;
+            background-color: #555;
             -webkit-transition: .2s ease-in-out;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
         
         body::-webkit-scrollbar {
-            width: 20px;
-            height: 50px;
+            width: 1.25rem; /* 20px */
+            height: 1.25rem; /* 20px */
         }
 
-        body::-webkit-scrollbar-thumb:vertical {
+        body::-webkit-scrollbar-thumb {
             background:fuchsia
         }
         
+        body::-webkit-scrollbar-button,
+        .comment-list::-webkit-scrollbar-button {
+            display: none;
+        }
+
+        body::-webkit-scrollbar-corner,
+        .comment-list::-webkit-scrollbar-corner {
+            display: none;
+        }
+
         #no-archives {
             color: #F2F0EF;
             font-size: 1.2em;
-            margin-top: 50px;
+            margin-top: 0rem; /* 50px */
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 5;
         }
 
         .trigger-shape {
             position: fixed;
-            width: 70px; 
-            height: 70px; 
+            width: 4.375rem; /* 70px */
+            height: 4.375rem; /* 70px */
             cursor: pointer;
-            z-index: 10; 
-            transition: background-color 0.3s ease, border-radius 0.3s ease, filter 0.3s ease; /* filter 추가 */
+            z-index: 10;
         }
-        .trigger-shape.active { /* 활성화된 트리거 스타일 */
-            /*filter: drop-shadow(0 0 10px fuchsia) brightness(1.2);*/
-            filter: blur(4px);
+        .trigger-shape.active {
+            filter: blur(0.25rem); /* 4px */
         }
-
 
         #circle-trigger {
-            top: 25px;
-            left: 25px;
-            background-color:rgb(255, 50, 0);
+            top: 2.5625rem; /* 25px */
+            left: 1.5625rem; /* 25px */
+            background-color:#ff99fa;
             border-radius: 50%;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
@@ -107,82 +144,143 @@
 
         #circle-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger {
-            height: 64px;
-            width: 64px;
-            top: 120px;
-            left: 28px;
-            background-color:rgb(255, 255, 20);
-            border-radius: 0; 
-
+            height: 4rem; /* 64px */
+            width: 4rem; /* 64px */
+            top: 8.5rem; /* 120px */
+            left: 1.75rem; /* 28px */
+            background-color:#ff99fa;
+            border-radius: 0;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger {
-            height: 68px;
-            width: 68px;
-            top: 214px;
-            left: 26px; 
-            background-color:rgb(0, 255, 255);
-            border-radius: 16px; 
-
+            height: 4.25rem; /* 68px */
+            width: 4.25rem; /* 68px */
+            top: 14.375rem; /* 214px */
+            left: 1.625rem; /* 26px */
+            background-color:#ff99fa;
+            border-radius: 1rem; /* 16px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(4px);
+            filter:blur(0.25rem); /* 4px */
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         .info-and-download-container {
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-top: 10px; 
-            margin-bottom: 5px;
-            padding: 0 5px; 
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 0.625rem; /* 10px */
+            margin-bottom: 0.3125rem; /* 5px */
+            padding: 0 0.3125rem; /* 0 5px */
         }
 
         .download-button {
-            background-color: #ff0000;
+            background-color:  fuchsia;
             color: #F2F0EF;
             border: none;
-            padding: 8px 10px;
+            padding: 0.5rem 0.625rem; /* 8px 10px */
             cursor: pointer;
-            font-size: 0.8em; 
-            text-decoration: none; 
-            white-space: nowrap; 
-            margin-bottom: 3px;
-            margin-right: -8px;
+            font-size: 0.8em;
+            text-decoration: none;
+            white-space: nowrap;
+            margin-bottom: 0.1875rem; /* 3px */
+            margin-right: -0.5rem; /* -8px */
             transition: .2s ease-in-out;
+            user-select:none; 
         }
 
         .download-button:hover {
-            background-color: #8C0000;
+            background-color: #a000a0;
             -webkit-transition: .2s ease-in-out;
             transition: .2s ease-in-out;
+            user-select:none; 
         }
+
+        .comment-container {
+            margin-top: 0.9375rem; /* 15px */
+            padding-top: 0.625rem; /* 10px */
+            border-top: 0.125rem solid fuchsia; /* 2px */
+        }
+        .comment-list {
+            margin-top: 0.5625rem; /* 9px */
+            margin-bottom: 1.0625rem; /* 17px */
+            max-height: 5.625rem; /* 90px */
+            overflow-y: auto;
+            padding-right: 0.3125rem; /* 5px */
+        }
+        .comment-list p {
+            font-family: "Orbit", sans-serif;
+            font-weight: 400;
+            font-style: normal;
+            font-size: 0.8em;
+            margin-bottom: 0.3125rem; /* 5px */
+            word-break: break-all;
+        }
+        .comment-form {
+            display: flex;
+            gap: 0.3125rem; /* 5px */
+        }
+        .comment-form input {
+            margin-bottom: 0.75rem; /* 12px */
+            flex-grow: 1;
+            background-color: #444;
+            border: 0.125rem solid fuchsia; /* 2px */
+            color: #F2F0EF;
+            padding: 0.3125rem; /* 5px */
+            font-family: "Orbit", sans-serif;
+            cursor: text;
+        }
+        .comment-form input:focus {
+            outline: none;
+            border-color: #FF00FF;
+        }
+        .comment-form button {
+            margin-bottom: 0.75rem; /* 12px */
+            background-color: fuchsia;
+            border: none;
+            color: #F2F0EF;
+            padding: 0.3125rem 0.625rem; /* 5px 10px */
+            cursor: pointer;
+            font-family: "Orbit", sans-serif;
+            transition: .2s ease-in-out;
+            user-select:none; 
+        }
+        .comment-form button:hover {
+            background-color: #a000a0;
+            user-select:none; 
+        }
+        .comment-list::-webkit-scrollbar {
+            width: 0.75rem; /* 12px */
+        }
+        .comment-list::-webkit-scrollbar-thumb {
+            background: fuchsia;
+        }
+
     </style>
 </head>
 <body>
-    <h1>Storage</h1>
     <div id="archive-container"></div>
+    <h1>Storage</h1>
     <div id="no-archives" style="display: none;"></div>
     <div id="circle-trigger" class="trigger-shape"></div>
     <div id="square-trigger" class="trigger-shape"></div>
@@ -190,31 +288,95 @@
 
     <script>
         let previousArchiveCount = 0;
-        let currentFilter = null; // 현재 활성화된 필터 (localStorage 키 이름)
-        const triggers = { // 각 트리거와 연결된 필터 키
+        let currentFilter = null;
+        const triggers = {
             'circle-trigger': 'memeSnakeArchives',
             'square-trigger': 'memetetrisarchives',
             'rounded-square-trigger': 'meme2048Archives'
         };
 
+        let shouldShuffle = true;
+        let itemPositions = {};
+
+        const archiveContainer = document.getElementById('archive-container');
+
+        /* 드래그 스크롤 개선 스크립트
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+
+        document.body.addEventListener('mousedown', (e) => {
+            // 입력, 버튼, 링크, archive-item 내부 클릭 무시
+            const targetTag = e.target.tagName.toLowerCase();
+            if (targetTag === 'input' || targetTag === 'button' || targetTag === 'a' || e.target.closest('.archive-item')) {
+                return;
+            }
+            isDragging = true;
+            lastX = e.clientX;
+            lastY = e.clientY;
+            document.body.style.cursor = 'grabbing';
+        });*/
+
+
+
+        // 드래그 스크롤 개선 스크립트
+        let isDragging = false;
+        let lastX = 0, lastY = 0;
+
         document.addEventListener('DOMContentLoaded', () => {
-            loadArchives(); // 초기 로드: 모든 아카이브 랜덤 표시
+            loadArchives(); 
             setInterval(checkAndLoadArchives, 5000);
 
-            // 트리거 버튼 이벤트 리스너 설정
             document.getElementById('circle-trigger').onclick = () => handleTriggerClick('memeSnakeArchives', 'circle-trigger');
             document.getElementById('square-trigger').onclick = () => handleTriggerClick('memetetrisarchives', 'square-trigger');
             document.getElementById('rounded-square-trigger').onclick = () => handleTriggerClick('meme2048Archives', 'rounded-square-trigger');
+            
+            document.body.addEventListener('mousedown', (e) => {
+                const targetTag = e.target.tagName.toLowerCase();
+                if (targetTag === 'input' || targetTag === 'button' || targetTag === 'a' || e.target.closest('.archive-item')) {
+                    return;
+                }
+                if (e.clientX >= document.documentElement.clientWidth || e.clientY >= document.documentElement.clientHeight) {
+                    return;
+                }
+                
+                isDragging = true;
+                lastX = e.clientX;
+                lastY = e.clientY;
+                document.body.style.cursor = 'move';
+            });
+
+            document.body.addEventListener('mousemove', (e) => {
+                if (!isDragging) return;
+                // 이동량 = 이전 좌표 - 현재 좌표
+                const dx = lastX - e.clientX;
+                const dy = lastY - e.clientY;
+                // 현재 위치에서 상대적으로 스크롤
+                window.scrollBy(dx, dy);
+                // 마지막 좌표 업데이트
+                lastX = e.clientX;
+                lastY = e.clientY;
+                e.preventDefault(); // 텍스트 선택 등 방지
+            });
+
+            const stopDragging = () => {
+                if (!isDragging) return;
+                isDragging = false;
+                document.body.style.cursor = 'crosshair';
+            };
+            document.body.addEventListener('mouseup', stopDragging);
+            document.body.addEventListener('mouseleave', stopDragging);
         });
+        // --- 드래그 로직 끝 ---
 
         function handleTriggerClick(filterKey, triggerId) {
             const triggerElement = document.getElementById(triggerId);
-            if (currentFilter === filterKey) { // 이미 해당 필터가 활성화된 경우
-                currentFilter = null; // 필터 해제
+            if (currentFilter === filterKey) {
+                currentFilter = null;
                 triggerElement.classList.remove('active');
-                loadArchives(); // 모든 아카이브 랜덤으로 표시
-            } else { // 새로운 필터 적용 또는 필터 변경
-                if (currentFilter) { // 기존에 다른 필터가 활성화되어 있었다면 비활성화
+                shouldShuffle = false; 
+                loadArchives();
+            } else {
+                if (currentFilter) {
                     const activeTriggerId = Object.keys(triggers).find(id => triggers[id] === currentFilter);
                     if (activeTriggerId) {
                         document.getElementById(activeTriggerId).classList.remove('active');
@@ -222,7 +384,8 @@
                 }
                 currentFilter = filterKey;
                 triggerElement.classList.add('active');
-                loadArchives(filterKey); // 특정 아카이브 표시
+                shouldShuffle = false; 
+                loadArchives(filterKey);
             }
         }
         
@@ -237,7 +400,6 @@
             });
         }
 
-
         function checkAndLoadArchives() {
             const snakeArchives = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
             const game2048Archives = JSON.parse(localStorage.getItem('meme2048Archives')) || [];
@@ -246,16 +408,15 @@
             const currentTotalArchiveCount = snakeArchives.length + game2048Archives.length + tetrisArchives.length;
 
             if (currentTotalArchiveCount !== previousArchiveCount) {
-                loadArchives(currentFilter); // 현재 필터 상태 유지하며 새로고침
+                shouldShuffle = false;
+                loadArchives(currentFilter);
                 previousArchiveCount = currentTotalArchiveCount;
             }
         }
 
         function loadArchives(filterType = null) {
-            const archiveContainer = document.getElementById('archive-container');
             const noArchivesMessage = document.getElementById('no-archives');
             
-            // 각 아카이브 로드 및 sourceKey 추가
             let snakeData = JSON.parse(localStorage.getItem('memeSnakeArchives')) || [];
             snakeData = snakeData.map(item => ({ ...item, sourceKey: 'memeSnakeArchives' }));
 
@@ -268,137 +429,195 @@
             let archivesToDisplay = [];
 
             if (filterType) {
-                if (filterType === 'memeSnakeArchives') {
-                    archivesToDisplay = snakeData;
-                } else if (filterType === 'meme2048Archives') {
-                    archivesToDisplay = game2048Data;
-                } else if (filterType === 'memetetrisarchives') {
-                    archivesToDisplay = tetrisData;
-                }
-                // 필터링된 아이템들은 가져온 순서대로 (또는 최신순으로 localStorage에 저장되었다면 그 순서대로) 표시
-                // 랜덤 정렬은 전체 보기 시에만 적용
-            } else { // 필터가 없으면 (currentFilter가 null이면) 모든 아카이브를 합침
+                if (filterType === 'memeSnakeArchives') archivesToDisplay = snakeData;
+                else if (filterType === 'meme2048Archives') archivesToDisplay = game2048Data;
+                else if (filterType === 'memetetrisarchives') archivesToDisplay = tetrisData;
+            } else {
                 archivesToDisplay = [...snakeData, ...game2048Data, ...tetrisData];
-                // Fisher-Yates shuffle algorithm for random sorting
-                for (let i = archivesToDisplay.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [archivesToDisplay[i], archivesToDisplay[j]] = [archivesToDisplay[j], archivesToDisplay[i]];
-                }
             }
-            updateAllTriggerStyles(); // 필터 상태에 따라 트리거 스타일 업데이트
 
-
-            // previousArchiveCount는 checkAndLoadArchives에서 전체 개수를 기준으로 관리합니다.
-            // 여기서 previousArchiveCount를 업데이트 하지 않습니다.
+            updateAllTriggerStyles();
+            archiveContainer.innerHTML = '';
 
             if (archivesToDisplay.length === 0) {
-                noArchivesMessage.textContent = filterType ? 'Play!' : 'Play!!!';
+                noArchivesMessage.textContent = filterType ? '(´ｰ ` ) . . zZ' : '( ´ ｰ`) . . zZ';
                 noArchivesMessage.style.display = 'block';
-                archiveContainer.innerHTML = '';
                 return;
             } else {
                 noArchivesMessage.style.display = 'none';
             }
 
-            archiveContainer.innerHTML = ''; // 기존 내용 지우기
+            if (shouldShuffle) {
+                itemPositions = {};
+                const placedItems = [];
+                const ITEM_WIDTH = 330;
+                const ITEM_AVG_HEIGHT = 480;
+                const PADDING = 20;
+
+                const allItems = [...snakeData, ...game2048Data, ...tetrisData];
+                allItems.forEach(item => {
+                    let x, y, isColliding, attempts = 0;
+                    do {
+                        isColliding = false;
+                        x = Math.floor(Math.random() * (archiveContainer.offsetWidth - ITEM_WIDTH));
+                        y = Math.floor(Math.random() * (archiveContainer.offsetHeight - ITEM_AVG_HEIGHT));
+                        for (const placed of placedItems) {
+                            if (x < placed.x + placed.width + PADDING && x + ITEM_WIDTH + PADDING > placed.x &&
+                                y < placed.y + placed.height + PADDING && y + ITEM_AVG_HEIGHT + PADDING > placed.y) {
+                                isColliding = true;
+                                break;
+                            }
+                        }
+                        attempts++;
+                    } while (isColliding && attempts < 100);
+                    placedItems.push({ x, y, width: ITEM_WIDTH, height: ITEM_AVG_HEIGHT });
+                    itemPositions[item.id] = { x, y };
+                });
+            }
+
             archivesToDisplay.forEach(item => {
-                const archiveItemDiv = document.createElement('div');
-                archiveItemDiv.className = 'archive-item';
-                
-                if (item.backgroundColor) { 
-                    archiveItemDiv.style.backgroundColor = item.backgroundColor;
-                } else {
-                    archiveItemDiv.style.backgroundColor = 'black'; 
+                const position = itemPositions[item.id];
+                if (position) {
+                    const archiveItemDiv = createArchiveItemElement(item);
+                    archiveItemDiv.style.left = `${position.x}px`;
+                    archiveItemDiv.style.top = `${position.y}px`;
+                    archiveContainer.appendChild(archiveItemDiv);
                 }
-
-                const img = document.createElement('img');
-                img.src = item.imageData;
-                
-                // alt 속성 설정 (sourceKey 기반으로 명확하게)
-                if (item.sourceKey === 'meme2048Archives') {
-                    img.alt = `2048 Game Screenshot at ${item.timestamp}`;
-                } else if (item.sourceKey === 'memetetrisarchives') {
-                    img.alt = `Meme Tetris at ${item.timestamp}`;
-                } else if (item.sourceKey === 'memeSnakeArchives') {
-                    img.alt = `Meme Snake at ${item.timestamp}`;
-                } else {
-                     img.alt = `Archived item at ${item.timestamp}`; // fallback
-                }
-                archiveItemDiv.appendChild(img);
-
-                const infoAndDownloadContainer = document.createElement('div');
-                infoAndDownloadContainer.className = 'info-and-download-container';
-
-                const timestampP = document.createElement('p');
-                const dateTimeString = item.timestamp;
-                const parts = dateTimeString.match(/(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})/);
-                if (parts) {
-                    const datePart = parts[1];
-                    let hours = parseInt(parts[2]);
-                    const minutes = parts[3];
-                    const ampm = hours >= 12 ? '오후' : '오전';
-                    hours = hours % 12;
-                    hours = hours ? hours : 12;
-                    const displayHours = hours.toString().padStart(2, '0');
-                    const timePartFormatted = `${ampm}${displayHours}:${minutes}`;
-                    timestampP.textContent = `${datePart} ${timePartFormatted}`;
-                } else {
-                    timestampP.textContent = dateTimeString;
-                }
-                timestampP.style.position = 'relative';
-                timestampP.style.marginRight = '-10px';
-                timestampP.style.marginLeft = '-6px';
-                infoAndDownloadContainer.appendChild(timestampP);
-                
-                const downloadButton = document.createElement('a');
-                downloadButton.className = 'download-button';
-                downloadButton.textContent = 'Download';
-                downloadButton.href = item.imageData;
-                
-                // 다운로드 파일명 설정 (sourceKey 기반으로 명확하게)
-                if (item.sourceKey === 'meme2048Archives') {
-                    downloadButton.download = `2048_screenshot_${item.id}.png`; 
-                } else if (item.sourceKey === 'memetetrisarchives') {
-                    downloadButton.download = `meme_tetris_${item.id}.png`;
-                } else if (item.sourceKey === 'memeSnakeArchives') {
-                    downloadButton.download = `meme_snake_${item.id}.png`;
-                } else {
-                    downloadButton.download = `archive_${item.id}.png`; // fallback
-                }
-                infoAndDownloadContainer.appendChild(downloadButton);
-                archiveItemDiv.appendChild(infoAndDownloadContainer);
-
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'delete-button';
-                deleteButton.textContent = '×';
-                deleteButton.onclick = () => {
-                    // 삭제 시 item.sourceKey를 사용하여 정확한 localStorage 키 지정
-                    // 사용자가 "지금은 이렇게 수정해서 잘 돼"라고 한 부분은
-                    // 이 sourceKey를 사용하거나, imageData.includes() 조건을
-                    // 각 게임별로 고유하게 수정했을 것이라고 가정합니다.
-                    // 여기서는 sourceKey를 사용하는 것이 가장 확실하고 권장되는 방식입니다.
-                    if (item.sourceKey) {
-                        deleteArchiveItem(item.id, item.sourceKey);
-                    } else {
-                        // sourceKey가 없는 이전 데이터에 대한 호환성 처리 (기존 로직 유지 또는 개선)
-                        // 이 부분은 사용자의 "잘 되는" 삭제 로직을 따라야 합니다.
-                        // 현재 제공된 코드의 마지막 삭제 로직은 2048과 테트리스 구분에 문제가 있었습니다.
-                        // 여기서는 console.warn을 남기고, 사용자가 이 부분을 확인하도록 합니다.
-                        console.warn('삭제할 아이템의 sourceKey가 없습니다. 기존 삭제 로직을 확인해주세요.', item);
-                        // 기존 로직 (문제가 있을 수 있음, 사용자가 수정한 버전을 여기에 넣어야 함):
-                        // if (item.imageData.includes('data:image/png;base64,')) { // 2048로 가정
-                        //     deleteArchiveItem(item.id, 'meme2048Archives');
-                        // } else if (item.imageData.includes('data:image/png;base64,')) { // Tetris로 가정 (위와 조건 동일)
-                        //     deleteArchiveItem(item.id, 'memetetrisarchives');
-                        // } else { // Snake로 가정
-                        //     deleteArchiveItem(item.id, 'memeSnakeArchives');
-                        // }
-                    }
-                };
-                archiveItemDiv.appendChild(deleteButton);
-                
-                archiveContainer.appendChild(archiveItemDiv);
             });
+            
+            if (shouldShuffle) {
+                const centerX = (archiveContainer.offsetWidth - window.innerWidth) / 2;
+                const centerY = (archiveContainer.offsetHeight - window.innerHeight) / 2;
+                window.scrollTo({ top: centerY, left: centerX, behavior: 'auto' });
+                shouldShuffle = false;
+            }
+            (function updateArchiveContainerSize() {
+                // 아이템이 배치된 최대 위치(x, y) 계산
+                let maxRight = 0, maxBottom = 0;
+                for (const pos of Object.values(itemPositions)) {
+                    maxRight = Math.max(maxRight, pos.x + 330 + 20);      // ITEM_WIDTH + PADDING
+                    maxBottom = Math.max(maxBottom, pos.y + 480 + 20);    // ITEM_AVG_HEIGHT + PADDING
+                }
+                // 최소 크기는 한 화면(뷰포트), 아이템이 많아지면 자동으로 커짐
+                const minWidth = window.innerWidth;
+                const minHeight = window.innerHeight;
+                archiveContainer.style.width = Math.max(minWidth, maxRight) + 'px';
+                archiveContainer.style.height = Math.max(minHeight, maxBottom) + 'px';
+            })();
+        }
+
+        function createArchiveItemElement(item) {
+            const archiveItemDiv = document.createElement('div');
+            archiveItemDiv.className = 'archive-item';
+            if (item.backgroundColor) { archiveItemDiv.style.backgroundColor = item.backgroundColor; } 
+            else { archiveItemDiv.style.backgroundColor = 'black'; }
+
+            const img = document.createElement('img');
+            img.src = item.imageData;
+            if (item.sourceKey === 'meme2048Archives') img.alt = `2048 Game Screenshot at ${item.timestamp}`;
+            else if (item.sourceKey === 'memetetrisarchives') img.alt = `Meme Tetris at ${item.timestamp}`;
+            else if (item.sourceKey === 'memeSnakeArchives') img.alt = `Meme Snake at ${item.timestamp}`;
+            else img.alt = `Archived item at ${item.timestamp}`;
+            archiveItemDiv.appendChild(img);
+
+            const infoAndDownloadContainer = document.createElement('div');
+            infoAndDownloadContainer.className = 'info-and-download-container';
+
+            const timestampP = document.createElement('p');
+            const dateTimeString = item.timestamp;
+            const parts = dateTimeString.match(/(\d{4}-\d{2}-\d{2}) (\d{2}):(\d{2}):(\d{2})/);
+            if (parts) {
+                const datePart = parts[1];
+                let hours = parseInt(parts[2]);
+                const minutes = parts[3];
+                const ampm = hours >= 12 ? '오후' : '오전';
+                hours = hours % 12;
+                hours = hours ? hours : 12;
+                const displayHours = hours.toString().padStart(2, '0');
+                const timePartFormatted = `${ampm}${displayHours}:${minutes}`;
+                timestampP.textContent = `${datePart} ${timePartFormatted}`;
+            } else { timestampP.textContent = dateTimeString; }
+            timestampP.style.position = 'relative';
+            timestampP.style.marginRight = '-10px';
+            timestampP.style.marginLeft = '-6px';
+            infoAndDownloadContainer.appendChild(timestampP);
+
+            const downloadButton = document.createElement('a');
+            downloadButton.className = 'download-button';
+            downloadButton.textContent = 'Download';
+            downloadButton.href = item.imageData;
+            if (item.sourceKey === 'meme2048Archives') downloadButton.download = `2048_screenshot_${item.id}.png`;
+            else if (item.sourceKey === 'memetetrisarchives') downloadButton.download = `meme_tetris_${item.id}.png`;
+            else if (item.sourceKey === 'memeSnakeArchives') downloadButton.download = `meme_snake_${item.id}.png`;
+            else downloadButton.download = `archive_${item.id}.png`;
+            infoAndDownloadContainer.appendChild(downloadButton);
+            archiveItemDiv.appendChild(infoAndDownloadContainer);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.className = 'delete-button';
+            deleteButton.textContent = '×';
+            deleteButton.onclick = () => {
+                if (item.sourceKey) { deleteArchiveItem(item.id, item.sourceKey); } 
+                else { console.warn('삭제할 아이템의 sourceKey가 없습니다. 기존 삭제 로직을 확인해주세요.', item); }
+            };
+            archiveItemDiv.appendChild(deleteButton);
+
+            const commentContainer = document.createElement('div');
+            commentContainer.className = 'comment-container';
+            const commentList = document.createElement('div');
+            commentList.className = 'comment-list';
+            if (item.comments && item.comments.length > 0) {
+                item.comments.forEach(comment => {
+                    const commentP = document.createElement('p');
+                    commentP.textContent = comment;
+                    commentList.appendChild(commentP);
+                });
+            }
+
+            const commentForm = document.createElement('form');
+            commentForm.className = 'comment-form';
+            commentForm.onsubmit = (e) => {
+                e.preventDefault();
+                const commentInput = e.target.elements.comment;
+                const commentText = commentInput.value.trim();
+                if (commentText) {
+                    addComment(item.id, item.sourceKey, commentText);
+                    commentInput.value = '';
+                }
+            };
+
+            const commentInput = document.createElement('input');
+            commentInput.type = 'text';
+            commentInput.name = 'comment';
+            commentInput.placeholder = 'Leave a comment...';
+            commentInput.autocomplete = 'off';
+
+            const commentButton = document.createElement('button');
+            commentButton.type = 'submit';
+            commentButton.textContent = 'Submit';
+            commentForm.appendChild(commentInput);
+            commentForm.appendChild(commentButton);
+            commentContainer.appendChild(commentList);
+            commentContainer.appendChild(commentForm);
+            archiveItemDiv.appendChild(commentContainer);
+
+            return archiveItemDiv;
+        }
+
+        function addComment(itemId, keyName, commentText) {
+            let archives = JSON.parse(localStorage.getItem(keyName)) || [];
+            const itemIndex = archives.findIndex(item => item.id === itemId);
+
+            if (itemIndex > -1) {
+                if (!archives[itemIndex].comments) {
+                    archives[itemIndex].comments = [];
+                }
+                archives[itemIndex].comments.push(commentText);
+                localStorage.setItem(keyName, JSON.stringify(archives));
+                
+                shouldShuffle = false;
+                loadArchives(currentFilter);
+            }
         }
 
         function deleteArchiveItem(idToDelete, keyName) {
@@ -406,9 +625,14 @@
             archives = archives.filter(item => item.id !== idToDelete);
             localStorage.setItem(keyName, JSON.stringify(archives));
             
-            // 삭제 후, 현재 필터 상태를 유지하며 목록 새로고침
             previousArchiveCount = (JSON.parse(localStorage.getItem('memeSnakeArchives')) || []).length +(JSON.parse(localStorage.getItem('meme2048Archives')) || []).length +(JSON.parse(localStorage.getItem('memetetrisarchives')) || []).length;
-            loadArchives(currentFilter); 
+            
+            if(itemPositions[idToDelete]) {
+                delete itemPositions[idToDelete];
+            }
+
+            shouldShuffle = false;
+            loadArchives(currentFilter);
         }
     </script>
 </body>
