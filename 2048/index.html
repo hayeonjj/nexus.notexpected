@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2048 GAME</title>
+    <title>2048 Game</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         /* Google Fonts 임포트 */
@@ -216,6 +216,7 @@
         #word-list-container {
             /* 기존 game-board와 동일한 스타일을 적용하여 '틀'을 만듭니다. */
             display: grid;
+            margin-top: 60px; /* ← 숫자는 상황에 따라 조절 */
             grid-template-columns: repeat(4, var(--tile-size));
             grid-template-rows: repeat(4, var(--tile-size));
             gap: var(--gap-size);
@@ -370,7 +371,7 @@
         const SINGLE_SYLLABLES = [
             '이', '기', '야', '노', '칠', '가', '이', '수', '진', '이', '싹', '싹', '김', '치', '지', '브', '리', '에', '이', '아', '이', '집', '게', '손', '혜', '지', '피', '싸', '개', '퐁', '퐁', '남', '설', '거', '지', '당', '하', '다', '앙', '기', '모', '띠', '식', '폭', '행', '쿵', '쾅', '쿵', '쾅', '참', '교', '육', '사', '이', '다', '카', '렌', '나', '는', '숭', '배', '해', '야', '해', '김', '여', '사', '오','우','야'
         ];
-        const MAX_MERGE_LENGTH = 8;
+        const MAX_MERGE_LENGTH = 6;
         const boardSize = 4; // 4x4 보드
         const ANIMATION_DURATION = 100; // ms (CSS transition-duration과 일치해야 함)
         const TILE_SIZE = 100; // px
@@ -1072,7 +1073,13 @@
             });
         }
         // ----------------------------------------------------------------------
-
+        // 방향키 입력 시 h1 숨기기
+        document.addEventListener('keydown', function(e) {
+            if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) {
+                const h1 = document.querySelector('h1');
+                if (h1) h1.style.display = 'none';
+            }
+        }, { once: true });
     </script>
 </body>
 </html>
