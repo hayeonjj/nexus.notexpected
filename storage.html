@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Storage</title>
+    <title>STORAGE</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400..800&display=swap');
         
         html, body {
             width: 100%;
@@ -233,7 +234,7 @@
             font-style: normal;
             font-size: 0.8em;
             margin-bottom: 0.3125rem; /* 5px */
-            word-break: break-all;
+            word-break: keep-all;
         }
         .comment-form {
             display: flex;
@@ -448,30 +449,68 @@
 
             if (shouldShuffle) {
                 itemPositions = {};
-                const placedItems = [];
-                const ITEM_WIDTH = 330;
-                const ITEM_AVG_HEIGHT = 480;
-                const PADDING = 20;
+                const ITEM_WIDTH = 300;
+                const ITEM_AVG_HEIGHT = 300;
+                const PADDING = 20; // 아이템 간 최소 간격
 
-                const allItems = [...snakeData, ...game2048Data, ...tetrisData];
-                allItems.forEach(item => {
+                const placedItems = [];
+                let maxRight = 0, maxBottom = 0;
+
+                archivesToDisplay.forEach(item => {
                     let x, y, isColliding, attempts = 0;
+                    // 랜덤 위치를 찾되, 겹치지 않으면 확정
                     do {
                         isColliding = false;
-                        x = Math.floor(Math.random() * (archiveContainer.offsetWidth - ITEM_WIDTH));
-                        y = Math.floor(Math.random() * (archiveContainer.offsetHeight - ITEM_AVG_HEIGHT));
+                        // 랜덤 위치를 컨테이너 크기보다 넉넉히 크게 잡아서, 아이템 개수가 많아지면 자연히 확장됨
+                        x = Math.floor(Math.random() * (placedItems.length + 1) * (ITEM_WIDTH + PADDING) * 1.3);
+                        y = Math.floor(Math.random() * (placedItems.length + 1) * (ITEM_AVG_HEIGHT + PADDING) * 1.1);
+                        // 이미 놓인 아이템과 충돌 검사
                         for (const placed of placedItems) {
-                            if (x < placed.x + placed.width + PADDING && x + ITEM_WIDTH + PADDING > placed.x &&
-                                y < placed.y + placed.height + PADDING && y + ITEM_AVG_HEIGHT + PADDING > placed.y) {
+                            if (
+                                x < placed.x + ITEM_WIDTH + PADDING &&
+                                x + ITEM_WIDTH + PADDING > placed.x &&
+                                y < placed.y + ITEM_AVG_HEIGHT + PADDING &&
+                                y + ITEM_AVG_HEIGHT + PADDING > placed.y
+                            ) {
                                 isColliding = true;
                                 break;
                             }
                         }
                         attempts++;
-                    } while (isColliding && attempts < 100);
-                    placedItems.push({ x, y, width: ITEM_WIDTH, height: ITEM_AVG_HEIGHT });
+                        // 너무 오래 못 찾으면 대충 아래로 밀어서라도 넣음
+                        if (attempts > 100) {
+                            y += ITEM_AVG_HEIGHT + PADDING;
+                            isColliding = false;
+                        }
+                    } while (isColliding);
+                    placedItems.push({ x, y });
                     itemPositions[item.id] = { x, y };
+                    maxRight = Math.max(maxRight, x + ITEM_WIDTH + PADDING);
+                    maxBottom = Math.max(maxBottom, y + ITEM_AVG_HEIGHT + PADDING);
                 });
+
+                // 아이템 생성 및 배치
+                archivesToDisplay.forEach(item => {
+                    const position = itemPositions[item.id];
+                    if (position) {
+                        const archiveItemDiv = createArchiveItemElement(item);
+                        archiveItemDiv.style.left = `${position.x}px`;
+                        archiveItemDiv.style.top = `${position.y}px`;
+                        archiveContainer.appendChild(archiveItemDiv);
+                    }
+                });
+
+                // 컨테이너 크기 갱신 (아이템이 많아질수록 커짐, 최소는 화면 크기)
+                archiveContainer.style.width = Math.max(window.innerWidth, maxRight) + 'px';
+                archiveContainer.style.height = Math.max(window.innerHeight, maxBottom) + 'px';
+
+                // 중앙 스크롤 유지
+                if (shouldShuffle) {
+                    const centerX = (archiveContainer.offsetWidth - window.innerWidth) / 2;
+                    const centerY = (archiveContainer.offsetHeight - window.innerHeight) / 2;
+                    window.scrollTo({ top: centerY, left: centerX, behavior: 'auto' });
+                    shouldShuffle = false;
+                }
             }
 
             archivesToDisplay.forEach(item => {
