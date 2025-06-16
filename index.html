@@ -5,22 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEXUS Not Expected</title>
     <style>
-
         @import url('https://fonts.googleapis.com/css2?family=Orbit&display=swap');
 
         body {
             margin: 0;
-            overflow: hidden; /* 스크롤바 제거 */
+            overflow: hidden;
             font-family: "Orbit", sans-serif;
             font-weight: 400;
             font-style: normal;
-
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
             background-color: black;
-            color: #1a1a1a; /* 기본 텍스트 색상 */
+            color: #1a1a1a;
             cursor: crosshair;
         }
 
@@ -35,19 +33,19 @@
             left: 0;
             width: 100%;
             height: 100%;
-            font-size: 2.25rem; /* 36px */
+            font-size: 2.25rem;
             text-align: justify;
-            line-height: 1; /* 줄 간격 조절 */
-            word-break: break-all; /* 단어가 줄 바꿈될 때 단어 단위로 끊기지 않게 */
-            box-sizing: border-box; /* 패딩이 너비에 포함되도록 */
-            letter-spacing: -0.125rem; /* -2px */
-            user-select: none; /* 텍스트 드래그 방지 */
-            z-index: 1; /* 도형보다 아래에 위치 */
+            line-height: 1;
+            word-break: break-all;
+            box-sizing: border-box;
+            letter-spacing: -0.125rem;
+            user-select: none;
+            z-index: 1;
         }
 
         .text-char {
-            display: inline-block; /* 각 문자를 인라인 블록으로 */
-            transition: color 0.3s ease, font-weight 0.3s ease; /* 부드러운 전환 효과 */
+            display: inline-block;
+            transition: color 0.3s ease, font-weight 0.3s ease;
         }
 
         .highlighted {
@@ -55,97 +53,94 @@
             font-weight: bold !important; 
         }
 
-        /* 공통 트리거 스타일 */
         .trigger-shape {
-            position: fixed; /* 뷰포트에 고정 */
-            width: 4.375rem; /* 70px */
-            height: 4.375rem; /* 70px */
+            position: fixed;
+            width: 4.375rem;
+            height: 4.375rem;
             cursor: pointer;
-            z-index: 10; /* 가장 위에 위치 */
+            z-index: 10;
             transition: background-color 0.3s ease, border-radius 0.3s ease;
         }
 
-        /* 개별 트리거 스타일 */
         #circle-trigger {
-            top: 2.5625rem; /* 25px */
-            left: 1.5625rem; /* 25px */
-            background-color:#ff99fa;/*rgb(255, 50, 0);*/
-            border-radius: 50%; /* 원형 */
+            top: 2.5625rem;
+            left: 1.5625rem;
+            background-color: #ff99fa;
+            border-radius: 50%;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #circle-trigger:hover {
             background-color: fuchsia;
-            filter:blur(0.25rem); /* 4px */
+            filter:blur(0.25rem);
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger {
-            height: 4rem; /* 64px */
-            width: 4rem; /* 64px */
-            top: 8.5rem; /* 120px */
-            left: 1.75rem; /* 28px */
-            background-color:#ff99fa; /*rgb(255, 255, 20);*/
-            border-radius: 0; /* 사각형 */
+            height: 4rem;
+            width: 4rem;
+            top: 8.5rem;
+            left: 1.75rem;
+            background-color: #ff99fa;
+            border-radius: 0;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(0.25rem); /* 4px */
+            filter:blur(0.25rem);
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger {
-            height: 4.25rem; /* 68px */
-            width: 4.25rem; /* 68px */
-            top: 14.375rem; /* 214px */
-            left: 1.625rem; /* 26px */
-            background-color:#ff99fa; /*rgb(0, 255, 225);*/
-            border-radius: 1rem; /* 16px */
+            height: 4.25rem;
+            width: 4.25rem;
+            top: 14.375rem;
+            left: 1.625rem;
+            background-color: #ff99fa;
+            border-radius: 1rem;
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
         #rounded-square-trigger:hover {
             background-color: fuchsia;
-            filter:blur(0.25rem); /* 4px */
+            filter:blur(0.25rem);
             -webkit-transition: .3s ease-in-out;
             transition: .3s ease-in-out;
         }
 
-        /* 아스키 아트 컨테이너들의 공통 스타일 */
         .ascii-container {
             position: absolute;
-            top: 45.9%; /* SNAKE와 동일한 중앙 위치 */
+            top: 45.9%;
             left: 50%;
             transform: translate(-50%, -50%);
-            white-space: pre; /* 공백과 줄 바꿈 유지 */
-            font-size: 2.25rem; /* 36px */
+            white-space: pre;
+            font-size: 2.25rem;
             font-weight: bold !important;
             line-height: 1;
-            opacity: 0; /* 초기에는 숨김 */
-            transition: opacity 0.5s ease; /* 부드러운 나타남 효과 */
-            z-index: 5; /* 텍스트 위에 위치 */
-            pointer-events: none; /* 아스키 아트 위로 마우스 이벤트를 통과시킴 */
-            color: fuchsia; /* 아스키 아트 텍스트 색상 */
-            font-weight: bold; /* 아스키 아트 텍스트 굵기 */
-
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 5;
+            pointer-events: none;
+            color: fuchsia;
+            font-weight: bold;
+            -webkit-text-stroke: 0.02rem fuchsia;
         }
 
         #h1{
             position: fixed;
-            height: 5%; /* 68px */
-            z-index:4;
+            height: 5%;
+            z-index:5;
             font-family: "Orbit", sans-serif;
             font-weight: bold;
             font-style: normal;
             color: fuchsia;
-            font-size: 2.25rem; /* 36px */
+            font-size: 2.25rem;
             top: 0rem; 
             text-align: center;
             user-select: text;
@@ -154,58 +149,48 @@
             transition: .3s ease-in-out;
         }
 
-        .h1-description {
-            z-index: 3;
+        /* 움직이는 설명 박스 스타일 */
+        .h1-desc-floating {
+            position: fixed;
+            z-index: 4;
+            max-width: 24rem;
+            width: 34rem;
+            min-height: 6rem;
+            max-height: 70vh;
+            padding: 2.2rem 2.2rem 2.2rem 2.2rem;
+            background: black;
+            color: #FF99FA;
             font-size: 1rem;
             font-weight: normal;
             line-height: 1.5;
-            opacity: 0; /* 초기 상태를 투명하게 설정 */
-            transition: opacity 0.3s ease-in-out, max-height 0.3s ease-in-out; 
+            box-sizing: border-box;
+            border: 0.125rem solid fuchsia; /* 2px */
+            overflow-y: auto;
+            box-shadow: 0 8px 40px 0 rgba(255,0,255,0.13);
+            display: none;
+            word-break: keep-all;
         }
 
-
-        /* #h1에 마우스를 올렸을 때 설명글을 보여줍니다 */
-        #h1 p:hover + .h1-description {
-            -webkit-transition: .3s ease-in-out;
-            transition: .3s ease-in-out;
-            opacity: 1; /* 다시 불투명하게 만듦 */
-            max-height: 500px; /* 내용이 모두 들어갈 충분한 최대 높이를 지정 */
+        .h1-desc-floating.show {
+            display: block;
+            opacity: 1;
         }
-
-        /*#statement-bg{
-            position:fixed;
-            display: inline-block;
-            justify-content: center;
-            z-index:3;
-            font-family: "Orbit", sans-serif;
-            font-weight: 400;
-            font-style: normal;
-            font-size: 1.125rem; /* 36px 
-            color: fuchsia;
-            -webkit-text-stroke: 1.5rem rgb(255, 0, 255);
-            user-select: none;        
-        }*/
 
     </style>
 </head>
 <body>
     <div id="h1">
-        <p align="center">NEXUS
+        <p align="center" id="h1-title">NEXUS
             <br>Not Expected
         </p>
-        <div class="h1-description">
-            다양한 인터넷 밈의 형태 중 언어가 가진 전파력과 유동성에 주목하며, 
-            <br>인터넷 공간의 혐오적 텍스트 밈을 주요 탐구 대상으로 삼는다. 
-            <br>밈의 재생산 및 유통 경로인 웹 환경을 바탕으로 게임의 형식을 통해 
-            <br>텍스트 밈의 해체와 재구성을 시도한다. 
-            <br>플레이어는 밈을 음절 또는 자모 단위로 분절하고 변형하면서 
-            <br>기존 의미가 표류하는 과정과 함께 형태의 유동성을 경험한다. 
-            <br>재탄생된 텍스트는 별도 공간에 보관되며, 이미지 파일로 저장할 수 있어 공유될 가능성을 품는다. 
-            <br>작업은 놀이의 문법을 통해 참여자를 창의적이고 자율적인 상태로 이끌어 
-            <br>부정적 함의에 저항하는 풍자적 실험이자 행위이다. 
-            <br>혐오적 텍스트가 가볍고 재미있는 밈으로 소비되는 방식을 역용하여, 
-            <br>게임 참여 과정 또한 유희적인 개입임을 강조한다.
-        </div>
+    </div>
+
+    <!-- 움직이는 설명 박스 -->
+    <div class="h1-desc-floating" align="center" id="h1-desc-floating">
+        다양한 인터넷 밈의 형태 중 언어가 가진 전파력과 유동성에 주목하며, 
+        인터넷 공간의 혐오적 텍스트 밈을 주요 탐구 대상으로 삼는다. 
+        밈의 재생산 및 유통 경로인 웹 환경을 바탕으로 게임의 형식을 통해 
+        텍스트 밈의 해체와 재구성을 시도한다. 
     </div>
 
     <div id="circle-trigger" class="trigger-shape" onclick="goToAnotherPage1()"></div>
@@ -232,12 +217,128 @@
         const tetrisAsciiContainer = document.getElementById('tetris-ascii-container');
         const twoZeroFourEightAsciiContainer = document.getElementById('2048-ascii-container');
 
-        // 화면을 채울 반복 텍스트
+        // --- 설명 오버레이 관련(움직이는 박스) ---
+        const h1Title = document.getElementById('h1-title');
+        const h1DescFloating = document.getElementById('h1-desc-floating');
+        document.addEventListener('DOMContentLoaded', function() {
+            showDescBoxAtRandomPosition();
+        });
+        let animFrame = null;
+        let posX = 0, posY = 0;
+        let velocityX = 0, velocityY = 0;
+        let boxWidth = 0, boxHeight = 0;
+        let boxActive = false;
+        const BALL_SPEED = 0.5; // 벽돌깨기 공처럼 느리고 일정하게
+
+        function randomInRange(min, max) {
+            return Math.random() * (max - min) + min;
+        }
+
+        function pickVelocity(speed) {
+            // 각도 제한: 너무 가로나 세로로만 진행하지 않게
+            let angle;
+            do {
+                angle = randomInRange(0, 2 * Math.PI);
+            } while (
+                Math.abs(Math.cos(angle)) < 0.3 || Math.abs(Math.sin(angle)) < 0.3
+            );
+            return {
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed
+            };
+        }
+
+        function moveDescBox() {
+            if (!boxActive) return;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            boxWidth = h1DescFloating.offsetWidth;
+            boxHeight = h1DescFloating.offsetHeight;
+
+            let nextX = posX + velocityX;
+            let nextY = posY + velocityY;
+
+            // 벽에 부딪히면 방향만 "딱" 반전, 속도와 각도는 그대로 유지(벽돌깨기 공처럼)
+            if (nextX < 0) {
+                nextX = 0;
+                velocityX = -velocityX;
+            } else if (nextX + boxWidth > winW) {
+                nextX = winW - boxWidth;
+                velocityX = -velocityX;
+            }
+            if (nextY < 0) {
+                nextY = 0;
+                velocityY = -velocityY;
+            } else if (nextY + boxHeight > winH) {
+                nextY = winH - boxHeight;
+                velocityY = -velocityY;
+            }
+
+            posX = nextX;
+            posY = nextY;
+
+            h1DescFloating.style.left = Math.round(posX) + 'px';
+            h1DescFloating.style.top = Math.round(posY) + 'px';
+
+            animFrame = requestAnimationFrame(moveDescBox);
+        }
+
+        function showDescBoxAtRandomPosition() {
+            h1DescFloating.classList.add('show');
+            h1DescFloating.style.opacity = '1';
+            h1DescFloating.style.display = 'block';
+
+            boxWidth = h1DescFloating.offsetWidth;
+            boxHeight = h1DescFloating.offsetHeight;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+
+            posX = Math.round(randomInRange(0, winW - boxWidth));
+            posY = Math.round(randomInRange(0, winH - boxHeight));
+
+            const v = pickVelocity(BALL_SPEED);
+            velocityX = v.vx;
+            velocityY = v.vy;
+
+            h1DescFloating.style.left = posX + 'px';
+            h1DescFloating.style.top = posY + 'px';
+
+            boxActive = true;
+            if (animFrame) cancelAnimationFrame(animFrame);
+            animFrame = requestAnimationFrame(moveDescBox);
+        }
+
+        function hideDescBox() {
+            h1DescFloating.classList.remove('show');
+            h1DescFloating.style.opacity = '0';
+            h1DescFloating.style.display = 'none';
+            boxActive = false;
+            if (animFrame) cancelAnimationFrame(animFrame);
+        }
+
+
+        window.addEventListener('resize', function() {
+            if (!boxActive) return;
+            const winW = window.innerWidth;
+            const winH = window.innerHeight;
+            boxWidth = h1DescFloating.offsetWidth;
+            boxHeight = h1DescFloating.offsetHeight;
+            let changed = false;
+            if (posX + boxWidth > winW) { posX = winW - boxWidth; changed = true;}
+            if (posY + boxHeight > winH) { posY = winH - boxHeight; changed = true;}
+            if (posX < 0) { posX = 0; changed = true; }
+            if (posY < 0) { posY = 0; changed = true; }
+            if (changed) {
+                h1DescFloating.style.left = posX + 'px';
+                h1DescFloating.style.top = posY + 'px';
+            }
+        });
+
+        // --- 화면을 채울 반복 텍스트
         const repeatText = "오우야퐁퐁남수진이혜지설거지당하다이기야노칠가이싹싹김치참교육집게손피싸개앙기모띠식폭행쿵쾅쿵쾅지브리에이아이나는숭배해야해카렌김여사";
         const textLength = repeatText.length;
-        const totalChars = 2000; // 대략적인 문자 수 (화면 크기에 따라 조절)
+        const totalChars = 2000;
 
-        // 텍스트를 span 태그로 감싸서 동적으로 삽입
         let generatedText = '';
         for (let i = 0; i < totalChars; i++) {
             generatedText += `<span class="text-char">${repeatText[i % textLength]}</span>`;
@@ -266,39 +367,29 @@ X   X X   X X   X X   X
  X    X   X     X X   X
 XXXXX XXXXX     X  XXX
 `;
-        // 각 아스키 아트 컨테이너에 텍스트 할당
         snakeAsciiContainer.textContent = snakeAsciiText;
         tetrisAsciiContainer.textContent = tetrisAsciiText;
         twoZeroFourEightAsciiContainer.textContent = twoZeroFourEightAsciiText;
 
-        // --- 효과 함수 정의 ---
-
-        // 모든 아스키 아트 숨기기 함수
         function hideAllAsciiArts() {
             snakeAsciiContainer.style.opacity = '0';
             tetrisAsciiContainer.style.opacity = '0';
             twoZeroFourEightAsciiContainer.style.opacity = '0';
-            textChars.forEach(char => char.classList.remove('highlighted')); // 하이라이트 제거
+            textChars.forEach(char => char.classList.remove('highlighted'));
         }
 
-        // 공통 아스키 아트 표시 함수 (어떤 컨테이너를 보여줄지 인자로 받음)
         function showAsciiArt(container) {
-            hideAllAsciiArts(); // 다른 아스키 아트 숨기기
+            hideAllAsciiArts();
             container.style.opacity = '1';
-
-            // 배경 텍스트 하이라이트 (이전 SNAKE 로직과 동일하게)
             const centerHighlightRange = 500;
             const startIndex = Math.floor((textChars.length - centerHighlightRange) / 2);
             const endIndex = startIndex + centerHighlightRange;
-
             for (let i = startIndex; i < endIndex; i++) {
                 if (textChars[i]) {
                     textChars[i].classList.add('highlighted');
                 }
             }
         }
-
-        // --- 이벤트 리스너 추가 ---
 
         circleTrigger.addEventListener('mouseenter', () => showAsciiArt(snakeAsciiContainer));
         circleTrigger.addEventListener('mouseleave', hideAllAsciiArts);
@@ -309,25 +400,14 @@ XXXXX XXXXX     X  XXX
         roundedSquareTrigger.addEventListener('mouseenter', () => showAsciiArt(twoZeroFourEightAsciiContainer));
         roundedSquareTrigger.addEventListener('mouseleave', hideAllAsciiArts);
 
-        // --- div에 게임 링크 연결 ---
         function goToAnotherPage1() {
-            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './snake/index.html';
-            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
-            // window.location.href = './my-folder/';
         }
         function goToAnotherPage2() {
-            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './tetris/index.html';
-            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
-            // window.location.href = './my-folder/';
         }
-
         function goToAnotherPage3() {
-            // 상대 경로 사용: 'my-folder' 폴더 안의 'index.html'로 이동
             window.location.href = './2048/index.html';
-            // 또는 'my-folder/'만 지정해도 기본적으로 해당 폴더의 index.html을 찾습니다.
-            // window.location.href = './my-folder/';
         }        
     </script>
 </body>
