@@ -182,7 +182,6 @@
             transition: .3s ease-in-out;
         }
 
-        /* 새로 추가된 저장 알림 박스 스타일 */
         #save-notification {
             position: fixed;
             top: 7%;
@@ -193,15 +192,16 @@
             font-weight: 700;
             font-style: normal;
             font-size: 1.25rem; /* 20px */
-            background-color: #F2F0EF;
-            color: #FF0000;
-            box-shadow: 0 0 0.75rem 0.1875rem #FF0000; /* 0px 0px 12px 3px */
+            background-color: #FF0000;
+            color: #F2F0EF;
+            box-shadow: 0 0 0.75rem 0.1875rem #FF0000;  /*0 0 12px 3px */
             border-radius: 0.25rem; /* 4px */
-            z-index: 1001; /* 오버레이보다 위에 */
-            display: none; /* 초기에는 숨김 */
-            opacity: 0; /* 초기 투명도 0 */
-            transition: opacity 0.5s ease-in-out; /* 투명도 변화 애니메이션 */
+            z-index: 1001;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
+        
     </style>
     <script async src="https://ga.jspm.io/npm:es-module-shims@1.5.1/dist/es-module-shims.js" crossorigin="anonymous"></script>
     <script type="importmap">
