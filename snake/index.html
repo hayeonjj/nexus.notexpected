@@ -129,7 +129,7 @@
             /* 기존 .chosung-option과 유사한 크기를 갖도록 설정 */
             width: 3.6rem; /* 대략적인 크기, 필요시 조절 */
             height: 3.6rem; /* 대략적인 크기, 필요시 조절 */
-            cursor: grab;
+            cursor: move;
             user-select: none;
         }
 
@@ -653,7 +653,7 @@ function setupDragAndDrop() {
             document.addEventListener('mouseup', onDragEnd);
         
             draggedJamo.style.zIndex = 1000; // 드래그하는 동안 가장 위에 보이도록 설정
-            draggedJamo.style.cursor = 'grabbing';
+            draggedJamo.style.cursor = 'move';
         }
 
         /**
@@ -688,7 +688,7 @@ function setupDragAndDrop() {
             document.addEventListener('mouseup', onDragEnd);
             
             draggedJamo.style.zIndex = 1000;
-            draggedJamo.style.cursor = 'grabbing';
+            draggedJamo.style.cursor = 'move';
         }
 
         function onDragMove(event) {
@@ -713,7 +713,7 @@ function setupDragAndDrop() {
             if (!draggedJamo) return;
 
             // 1. 드래그가 끝난 요소의 스타일을 복원합니다.
-            draggedJamo.style.cursor = 'grab';
+            draggedJamo.style.cursor = 'crosshair';
             draggedJamo.style.zIndex = ''; // z-index를 CSS 기본값으로 되돌림
 
             // 2. ★★★ 핵심: 드롭된 요소에 '이동 드래그' 이벤트를 추가합니다.
