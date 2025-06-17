@@ -20,6 +20,7 @@
             font-weight: 700;
             font-style: normal;
             color: #FF0000;
+            cursor: crosshair;
         }
         /*::selection {
             background-color: rgb(255, 255, 0);
@@ -183,18 +184,38 @@
         .draggable-jamo {
             width: var(--cell-width, 3.125rem); /* 50px */
             height: var(--cell-height, 3.125rem); /* 50px */
-            background-color: #ff99fa;
-            color: #FF0000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 2rem; /* 32px */
-            font-family: "Gothic A1", sans-serif;
-            font-weight: 700;
-            cursor: grab;
+            cursor: move;
             user-select: none;
             box-sizing: border-box;
             position: absolute;
+        }
+
+        /* 배경을 담당할 자식 요소 스타일 (새로 추가) */
+        .jamo-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: #ff99fa;
+            z-index: 1; /* 텍스트보다 낮은 z-index */
+        }
+
+        /* 텍스트를 담당할 자식 요소 스타일 (새로 추가) */
+        .jamo-text {
+            position: relative; /* z-index 적용을 위해 필요 */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2; /* 배경보다 높은 z-index */
+            
+            /* 폰트/색상 관련 스타일을 이곳으로 이동 */
+            color: #FF0000;
+            font-size: 2rem; /* 32px */
+            font-family: "Gothic A1", sans-serif;
+            font-weight: 700;
         }
 
         :root {
@@ -526,7 +547,7 @@
             combineButton.style.display = 'none';
         }
 
-        // --- combineJamo 함수 수정 ---
+// --- combineJamo 함수 수정 ---
         function combineJamo() {
             if (countFilledCells() < 1) {
                 alert("셀이 1개 이상 채워져야 합니다.");
@@ -536,22 +557,34 @@
             jamoDragContainer.innerHTML = ''; // 이전 내용 초기화
             combinedJamoOutput.innerHTML = ''; // 이전 결과 초기화
 
-            // 테트리스 그리드에서 자모와 위치 정보를 가져옴
+            // 테트리스 그리드에서 자모와 위치 정보를 가져와 '원본' 요소를 생성
             for (let y = 0; y < gridHeight; y++) {
                 for (let x = 0; x < gridWidth; x++) {
                     if (grid[y][x] !== null) {
                         const jamoText = grid[y][x];
-                        const jamoDiv = document.createElement('div');
-                        jamoDiv.classList.add('draggable-jamo');
-                        jamoDiv.textContent = jamoText;
 
-                        // 테트리스 영역에서의 위치를 기준으로 초기 위치 설정
-                        jamoDiv.style.left = `${x * cellWidth}px`;
-                        jamoDiv.style.top = `${y * cellHeight}px`;
-                        // position: absolute; 는 CSS에서 이미 .draggable-jamo에 설정됨
+                        // 1. 래퍼(부모) div를 생성. 이 div가 드래그의 대상이 됩니다.
+                        const jamoWrapper = document.createElement('div');
+                        jamoWrapper.classList.add('draggable-jamo');
 
-                        jamoDragContainer.appendChild(jamoDiv);
-                        jamoDiv.addEventListener('mousedown', onDragStart);
+                        // 2. 배경 역할을 할 div를 생성합니다.
+                        const backgroundDiv = document.createElement('div');
+                        backgroundDiv.className = 'jamo-background';
+
+                        // 3. 텍스트를 담을 div를 생성합니다.
+                        const textDiv = document.createElement('div');
+                        textDiv.className = 'jamo-text';
+                        textDiv.textContent = jamoText;
+
+                        // 4. 래퍼에 배경과 텍스트를 자식으로 추가합니다.
+                        jamoWrapper.appendChild(backgroundDiv);
+                        jamoWrapper.appendChild(textDiv);
+
+                        // 5. 위치 설정과 이벤트 리스너는 래퍼에 적용합니다.
+                        jamoWrapper.style.left = `${x * cellWidth}px`;
+                        jamoWrapper.style.top = `${y * cellHeight}px`;
+                        jamoDragContainer.appendChild(jamoWrapper);
+                        jamoWrapper.addEventListener('mousedown', onDragStart);
                     }
                 }
             }
@@ -560,71 +593,110 @@
         }
         // --- 여기까지 combineJamo 함수 수정 ---
 
-        // --- onDragStart 함수 수정 (마우스 위치 어긋남 개선) ---
-        function onDragStart(event) {
-            if (!event.target.classList.contains('draggable-jamo')) return;
-
-            draggedJamo = event.target;
-
-            // draggedJamo의 현재 위치 (style.left, style.top)는 이미 px 단위 문자열
-            const currentLeft = parseFloat(draggedJamo.style.left || 0);
-            const currentTop = parseFloat(draggedJamo.style.top || 0);
-
-            // 마우스 클릭 위치(clientX/Y)와 요소의 실제 렌더링 된 좌상단 위치(getBoundingClientRect) 간의 차이
-            // 가 아니라, 마우스 클릭 위치와 요소의 *스타일* 좌상단 (currentLeft/Top)의 차이를 계산해야 함.
-            // clientX/Y는 viewport 기준. jamoDragContainer의 getBoundingClientRect()를 통해
-            // jamoDragContainer 내부에서의 마우스 상대 위치를 구한다.
+        /**
+         * '이동 드래그'를 처리하는 새로운 함수.
+         * 이미 복제된 요소를 클릭했을 때 실행되며, 요소를 그대로 움직입니다.
+         * @param {MouseEvent} event 
+         */
+        function moveDragStart(event) {
+            event.stopPropagation(); // 이벤트 버블링 방지
+            
+            // 클릭된 요소 '자신'을 드래그 대상으로 설정
+            draggedJamo = event.currentTarget; 
+        
             const parentRect = jamoDragContainer.getBoundingClientRect();
             const mouseXInParent = event.clientX - parentRect.left;
             const mouseYInParent = event.clientY - parentRect.top;
+            const currentLeft = parseFloat(draggedJamo.style.left || 0);
+            const currentTop = parseFloat(draggedJamo.style.top || 0);
+            
+            dragOffsetX = mouseXInParent - currentLeft;
+            dragOffsetY = mouseYInParent - currentTop;
+        
+            draggedJamo.style.zIndex = 1000;
+            draggedJamo.style.cursor = 'grabbing';
+            document.addEventListener('mousemove', onDragMove);
+            document.addEventListener('mouseup', onDragEnd);
+        }
 
+        /**
+         * '복제 드래그'를 처리하는 함수.
+         * 원본 요소를 클릭했을 때 실행되며, 복제본을 만들어 드래그를 시작합니다.
+         * @param {MouseEvent} event 
+         */
+        function onDragStart(event) {
+            // ★★★ 수정된 부분 ★★★
+            // 클릭된 지점(event.target)에서 가장 가까운 .draggable-jamo 부모를 찾습니다.
+            const originalJamo = event.target.closest('.draggable-jamo');
+
+            // .draggable-jamo를 찾지 못했다면 함수를 종료합니다.
+            if (!originalJamo) return;
+
+            // 1. 원본 요소를 복제합니다.
+            const clone = originalJamo.cloneNode(true);
+            clone.style.position = 'absolute';
+            clone.style.left = originalJamo.style.left;
+            clone.style.top = originalJamo.style.top;
+            
+            // 2. 복제본을 DOM에 추가하고 드래그 대상으로 설정합니다.
+            jamoDragContainer.appendChild(clone);
+            draggedJamo = clone; 
+
+            // 3. 드래그 시작을 위한 초기 설정을 합니다.
+            const parentRect = jamoDragContainer.getBoundingClientRect();
+            const mouseXInParent = event.clientX - parentRect.left;
+            const mouseYInParent = event.clientY - parentRect.top;
+            const currentLeft = parseFloat(draggedJamo.style.left || 0);
+            const currentTop = parseFloat(draggedJamo.style.top || 0);
+            
             dragOffsetX = mouseXInParent - currentLeft;
             dragOffsetY = mouseYInParent - currentTop;
 
-            // draggedJamo.style.position = 'absolute'; // CSS에서 이미 설정됨
+            // 4. 드래그 관련 이벤트 리스너를 등록하고 시각적 피드백을 줍니다.
             draggedJamo.style.zIndex = 1000;
-
+            draggedJamo.style.cursor = 'move';
             document.addEventListener('mousemove', onDragMove);
             document.addEventListener('mouseup', onDragEnd);
-
-            // 첫 클릭 시 바로 이동하지 않도록 초기 위치 업데이트는 onDragMove에서 처리
         }
-        // --- 여기까지 onDragStart 함수 수정 ---
 
-        // --- onDragMove 함수 수정 (마우스 위치 어긋남 개선) ---
         function onDragMove(event) {
             if (!draggedJamo) return;
             event.preventDefault();
 
             const parentRect = jamoDragContainer.getBoundingClientRect();
-            // jamoDragContainer 내부에서의 마우스 현재 위치
             const mouseXInParent = event.clientX - parentRect.left;
             const mouseYInParent = event.clientY - parentRect.top;
 
-            // 새로운 left, top 위치는 (jamoDragContainer 내부 마우스 위치 - 드래그 시작 시 오프셋)
             let newLeft = mouseXInParent - dragOffsetX;
             let newTop = mouseYInParent - dragOffsetY;
 
             draggedJamo.style.left = newLeft + 'px';
             draggedJamo.style.top = newTop + 'px';
         }
-        // --- 여기까지 onDragMove 함수 수정 ---
 
-        // --- onDragEnd 함수는 이전과 동일하게 유지 가능 (또는 zIndex 초기화 추가) ---
+        /**
+         * 모든 드래그 동작(복제, 이동)이 끝났을 때 실행됩니다.
+         */
         function onDragEnd() {
             if (!draggedJamo) return;
 
+            // 1. 드래그가 끝난 요소의 스타일을 복원합니다.
+            draggedJamo.style.zIndex = '';
+            draggedJamo.style.cursor = 'crosshair';
+
+            // 2. ★★★ 핵심: 드롭된 요소에 '이동 드래그' 이벤트를 추가합니다.
+            // 이제 이 요소는 복제되지 않고, 이동만 가능하게 됩니다.
+            draggedJamo.removeEventListener('mousedown', onDragStart); // 기존 '복제' 리스너 제거
+            draggedJamo.addEventListener('mousedown', moveDragStart); // '이동' 리스너 추가
+
+            // 3. 전역 이벤트 리스너를 제거합니다.
             document.removeEventListener('mousemove', onDragMove);
             document.removeEventListener('mouseup', onDragEnd);
-
-            // 선택 사항: 드래그가 끝나면 zIndex를 원래대로 돌리거나 낮춤
-            // draggedJamo.style.zIndex = ''; // 또는 특정 값으로 설정
-
+            
+            // 4. 현재 드래그 중인 자모 정보를 초기화하고, 결과를 업데이트합니다.
             draggedJamo = null;
-            updateCombinedOutput(); // 위치 변경 후 결과 업데이트 (DOM 순서 기반)
+            updateCombinedOutput();
         }
-        // --- 여기까지 onDragEnd 함수 ---
-
 
 
          // --- updateCombinedOutput 함수는 이전 답변의 단순 나열 버전 그대로 사용 ---
